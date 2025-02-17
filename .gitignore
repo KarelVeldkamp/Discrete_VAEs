@@ -1,0 +1,6 @@
+/logs/*
+/logs/**
+/figures/*
+/figures/**
+/venv/*
+/venv/**

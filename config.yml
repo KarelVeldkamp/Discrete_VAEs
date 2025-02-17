@@ -1,0 +1,32 @@
+Configs:
+  GeneralConfigs:
+    model: GDINA # GDINA, LCA, or MIXIRT
+    simdata: True # whether to simulate data or load it from data folder
+    repetition : 1 # determines where data is saved and/or which data is loaded
+    save_plot: True # whether to save a recovery plot
+    separate_plots: True # whether to save additional plots for each class/effect
+  SimConfigs:
+    N: 10000
+    n_items: 100
+    save: False # whether to save the data to disk
+  OptimConfigs:
+    learning_rate: 0.05
+    single_epoch_test_run: False
+    max_epochs: 2000
+    min_epochs: 10
+    min_delta: .0008
+    patience: 20
+    batch_size: 1000
+    gumbel_temperature: 1
+    gumbel_decay: .90
+    gumbel_min_temp: .4
+    n_iw_samples: 2
+    n_rep: 10 # number of times to fit the model with different starting values
+    accelerator: 'cpu' # cpu or mps
+  ModelSpecificConfigs:
+    # general optimization true:
+    gibbs_samples: 1
+    n_class: 8 # number of classes in LCA
+    n_attributes: 2 # number of attributes in GDINA
+    emb_dim: 5 # size of latent embeddings in VQ-VAE
+    lca_method: 'vq' #st, gs, vq, dvae, log or rbm
