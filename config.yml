@@ -4,7 +4,7 @@ Configs:
     simdata: True # whether to simulate data or load it from data folder
     repetition : 1 # determines where data is saved and/or which data is loaded
     save_plot: True # whether to save a recovery plot
-    separate_plots: True # whether to save additional plots for each class/effect
+    separate_plots: False # whether to save additional plots for each class/effect
   SimConfigs:
     N: 10000
     n_items: 30

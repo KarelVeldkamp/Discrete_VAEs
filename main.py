@@ -224,11 +224,15 @@ print(mse_cond)
 # plotting
 empty_directory('./figures/')
 if cfg['GeneralConfigs']['save_plot']:
-    # save recovery plot of item parameters in /figures/
+    # save recovery plot of item parameters
     recovery_plot(true=true_itempars[true_itempars!=0],
                   est=best_itempars.detach().numpy()[true_itempars!=0],
                   name='Overall_Itemparameter_recovery')
-
+    # save recovery plot of ability parameters for the MIXIRT model
+    if cfg['GeneralConfigs']['model'] == 'MIXIRT':
+        recovery_plot(true=true_theta,
+                      est=best_theta.detach().numpy(),
+                      name='Overall_Theta_recovery')
     if cfg['GeneralConfigs']['separate_plots']:
         for cl in range(true_itempars.shape[2]):
             for dim in range(true_itempars.shape[1]):
@@ -238,7 +242,8 @@ if cfg['GeneralConfigs']['save_plot']:
 
                 recovery_plot(true=true_itempars_dim[true_itempars_dim!= 0],
                               est=best_itempars_dim.detach().numpy()[true_itempars_dim!= 0],
-                              name=f'Itemparameter_recovery_ls{cl+1}_dim{dim+1}')
+                              name=f'Itemparameter_recovery_class{cl+1}_dim{dim+1}')
+
 
 
 
