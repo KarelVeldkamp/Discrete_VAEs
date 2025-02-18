@@ -2,6 +2,7 @@ import torch
 
 from LCA import *
 from GDINA import *
+from MIXIRT import *
 from helpers import Cor, MSE, recovery_plot, empty_directory
 from data import MemoryDataset
 from torch.utils.data import DataLoader
@@ -12,6 +13,7 @@ from pytorch_lightning.loggers import CSVLogger
 import yaml
 import time
 import os
+import pandas as pd
 
 
 # read in configurations
@@ -22,21 +24,42 @@ with open("./config.yml", "r") as f:
 # simulate data
 if cfg['GeneralConfigs']['simdata']:
     if cfg['GeneralConfigs']['model'] == 'LCA':
-        data, true_class, true_itempars = sim_LCA(N=cfg['SimConfigs']['N'],
-                                               nitems=cfg['SimConfigs']['n_items'],
-                                               nclass=cfg['ModelSpecificConfigs']['n_class'])
-    if cfg['GeneralConfigs']['model'] == 'GDINA':
-        data, true_itempars, true_class, true_eff = sim_GDINA(N=cfg['SimConfigs']['N'],
-                                          nitems=cfg['SimConfigs']['n_items'],
-                                          nattributes=cfg['ModelSpecificConfigs']['n_attributes'])
-        Q = torch.Tensor(true_itempars[:,1:] != 0).float()
+        data, true_class, true_itempars = sim_LCA(
+            N=cfg['SimConfigs']['N'],
+            nitems=cfg['SimConfigs']['n_items'],
+            nclass=cfg['ModelSpecificConfigs']['n_class'])
+    elif cfg['GeneralConfigs']['model'] == 'GDINA':
+        data, true_itempars, true_class, true_eff = sim_GDINA(
+            N=cfg['SimConfigs']['N'],
+            nitems=cfg['SimConfigs']['n_items'],
+            nattributes=cfg['ModelSpecificConfigs']['n_attributes'])
+        Q = torch.Tensor(true_itempars[:, 0,1:] != 0).float()
 
+    elif cfg['GeneralConfigs']['model'] == 'MIXIRT':
+        if cfg['ModelSpecificConfigs']['mirt_dim'] > 1:
+            Q = pd.read_csv(f'./QMatrices/QMatrix{cfg['ModelSpecificConfigs']['mirt_dim']}DSimple.csv', header=None).values.astype(float)
+        else:
+            Q = np.ones((cfg['SimConfigs']['n_items'], cfg['ModelSpecificConfigs']['mirt_dim']))
 
-
+        data, true_class, true_theta, true_itempars = sim_MIXIRT(
+            N=cfg['SimConfigs']['N'],
+            nitems=cfg['SimConfigs']['n_items'],
+            nclass=2,
+            mirt_dim=cfg['ModelSpecificConfigs']['mirt_dim'],
+            Q = Q,
+            class_prob=cfg['ModelSpecificConfigs']['class_prob'],
+            cov=cfg['ModelSpecificConfigs']['cov'])
 # or read data from disk
 else:
     raise NotImplementedError()
 
+
+
+    true_class = attributes
+    true_itempars = np.concat((intercepts.T, delta),-1)
+
+
+#true_itempars = torch.Tensor(true_itempars)
 # intiralize data loader
 dataset = MemoryDataset(data)
 train_loader = DataLoader(dataset, batch_size=cfg['OptimConfigs']['batch_size'], shuffle=True)
@@ -63,8 +86,10 @@ for i in range(cfg['OptimConfigs']['n_rep']):
                                         mode='min')],
                       enable_progress_bar=True,
                       enable_model_summary=False,
-                      detect_anomaly=True,
+                      detect_anomaly=False,
                       accelerator=cfg['OptimConfigs']['accelerator'])
+
+    # fit the model (LCA, GDINA or MIXIRT)
     if cfg['GeneralConfigs']['model'] == 'LCA':
         if cfg['ModelSpecificConfigs']['lca_method'] in ['dvae', 'gs', 'vq', 'log']:
             model = LCA(dataloader=train_loader,
@@ -105,13 +130,26 @@ for i in range(cfg['OptimConfigs']['n_rep']):
                       n_iw_samples=cfg['OptimConfigs']['n_iw_samples']
                       )
 
+    elif cfg['GeneralConfigs']['model'] == 'MIXIRT':
+        model = VAE(dataloader=train_loader,
+                  nitems=data.shape[1],
+                  learning_rate=cfg['OptimConfigs']['learning_rate'],
+                  latent_dims=cfg['ModelSpecificConfigs']['mirt_dim'],
+                  hidden_layer_size=50,
+                  qm=Q,
+                  batch_size=cfg['OptimConfigs']['batch_size'],
+                  n_iw_samples=cfg['OptimConfigs']['n_iw_samples'],
+                  temperature=cfg['OptimConfigs']['gumbel_temperature'],
+                  temperature_decay=cfg['OptimConfigs']['gumbel_decay'],
+                  beta=1)
+
     start = time.time()
     trainer.fit(model)
     runtime = time.time() - start
     print(f'runtime: {runtime}')
 
     # check if the model fit is better than previous repetitions
-    pi, itempars, ll = model.compute_parameters(data)
+    pi, theta, itempars, ll = model.compute_parameters(data)
 
     if ll > best_ll:
         best_ll = ll
@@ -120,18 +158,42 @@ for i in range(cfg['OptimConfigs']['n_rep']):
         best_pi = pi
         best_class_ix = torch.argmax(best_pi, 1)
 
+# for mixture IRT and LCA we have to account for label switching:
+if  cfg['GeneralConfigs']['model'] in ['MIXIRT', 'LCA']:
 
-# match estimated latent classes to the correct true class
+    # print(Cor(best_itempars.detach().numpy(), true_itempars.detach().numpy()))
+    #
+    # cor = Cor(best_itempars.detach().numpy(), true_itempars.detach().numpy())
+    # #cor = Cor(best_itempars.flatten(0,1).detach().numpy().T, true_itempars.flatten(0,1).detach().numpy().T)
+    # #cor = Cor(best_itempars[:,0,:].detach().numpy().T, true_itempars[:,0,:].detach().numpy().T)
+    #
+    # cor[np.isnan(cor)] = 1
+    # _, new_order = linear_sum_assignment(-cor)
+    # true_itempars = true_itempars[new_order, :]
+    # true_class = true_class[:, new_order]
+
+    _, new_order = linear_sum_assignment(-Cor(best_itempars.flatten(0,1).detach().numpy().T,
+                                              torch.Tensor(true_itempars).flatten(0,1).detach().numpy().T
+                                              )
+                                         )
+
+    true_itempars = true_itempars[:,:, new_order]
+    true_class = true_class[:, new_order]
+    true_class_ix = np.argmax(true_class, 1)
+    # compute latent class accuracy
+    lc_acc = np.mean(best_class_ix.detach().numpy() == true_class_ix)
+elif cfg['GeneralConfigs']['model'] == 'GDINA':
+
+    lc_acc = (true_class.detach().numpy() == (pi > .5).float().detach().numpy()).mean()
+
+# print(true_class.shape)
+# print(best_pi.shape)
+# cor = Cor(true_class.T, best_pi.T.detach().numpy())
+# cor[np.isnan(cor)] = 1
+# _, new_order = linear_sum_assignment(-cor)
 
 
-_, new_order = linear_sum_assignment(-Cor(best_itempars.detach().numpy(), true_itempars))
-true_itempars = true_itempars[new_order, :]
-true_class = true_class[:, new_order]
-true_class_ix = np.argmax(true_class, 1)
 
-
-# compute latent class accuracy
-lc_acc = np.mean(best_class_ix.detach().numpy() == true_class_ix)
 # compute MSE of conditional probabilities
 mse_cond = MSE(best_itempars.detach().numpy(), true_itempars)
 
@@ -150,12 +212,16 @@ if cfg['GeneralConfigs']['save_plot']:
                   name='Overall_Itemparameter_recovery')
 
     if cfg['GeneralConfigs']['separate_plots']:
-        for dim in range(true_itempars.shape[0]):
-            best_itempars_dim = best_itempars[dim,:]
-            true_itempars_dim = true_itempars[dim,:]
-            recovery_plot(true=true_itempars_dim[true_itempars_dim != 0],
-                          est=best_itempars_dim.detach().numpy()[true_itempars_dim != 0],
-                          name=f'Itemparameter_recovery_{dim+1}')
+        for cl in range(true_itempars.shape[2]):
+            for dim in range(true_itempars.shape[1]):
+
+                best_itempars_dim = best_itempars[:,dim, cl]
+                true_itempars_dim = true_itempars[:,dim, cl]
+                print(best_itempars_dim)
+                print(true_itempars_dim)
+                recovery_plot(true=true_itempars_dim.detach().numpy()[true_itempars_dim.detach().numpy() != 0],
+                              est=best_itempars_dim.detach().numpy()[true_itempars_dim.detach().numpy() != 0],
+                              name=f'Itemparameter_recovery_{cl+1}_{dim+1}')
 
 
 

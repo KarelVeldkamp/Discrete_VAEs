@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import shutil
+import torch
 def MSE(est, true):
     """
     Mean square error

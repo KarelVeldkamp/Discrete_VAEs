@@ -4,6 +4,19 @@ from torch import nn
 import torch.distributions as dist
 import torch.nn.functional as F
 
+class NormalSampler(pl.LightningModule):
+    def __init__(self):
+        super(NormalSampler, self).__init__()
+        self.N = torch.distributions.Normal(0, 1)
+
+    def forward(self, mu, log_sigma):
+        sigma = torch.exp(log_sigma)
+        error = self.N.sample(mu.shape)
+        # potentially move error vector to GPU
+        error = error.to(mu)
+        return mu + sigma * error
+
+
 class GumbelSampler(pl.LightningModule):
     """
     Network module that performs the Gumbel-Softmax operation

@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1afaf8ee-2420-408e-b48a-692cb232e8d7" name="Changes" comment="">
-      <change beforePath="$USER_HOME$/Documents/GitHub/Discrete_VAEs/.gitignore" beforeDir="false" afterPath="$USER_HOME$/Documents/GitHub/Discrete_VAEs/.gitignore" afterDir="false" />
+      <change beforePath="$USER_HOME$/Documents/GitHub/Discrete_VAEs/.idea/workspace.xml" beforeDir="false" afterPath="$USER_HOME$/Documents/GitHub/Discrete_VAEs/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$USER_HOME$/Documents/GitHub/Discrete_VAEs/GDINA.py" beforeDir="false" afterPath="$USER_HOME$/Documents/GitHub/Discrete_VAEs/GDINA.py" afterDir="false" />
+      <change beforePath="$USER_HOME$/Documents/GitHub/Discrete_VAEs/LCA.py" beforeDir="false" afterPath="$USER_HOME$/Documents/GitHub/Discrete_VAEs/LCA.py" afterDir="false" />
+      <change beforePath="$USER_HOME$/Documents/GitHub/Discrete_VAEs/config.yml" beforeDir="false" afterPath="$USER_HOME$/Documents/GitHub/Discrete_VAEs/config.yml" afterDir="false" />
+      <change beforePath="$USER_HOME$/Documents/GitHub/Discrete_VAEs/main.py" beforeDir="false" afterPath="$USER_HOME$/Documents/GitHub/Discrete_VAEs/main.py" afterDir="false" />
+      <change beforePath="$USER_HOME$/Documents/GitHub/Discrete_VAEs/samplers.py" beforeDir="false" afterPath="$USER_HOME$/Documents/GitHub/Discrete_VAEs/samplers.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +50,8 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$USER_HOME$/Documents/GitHub/Discrete_VAEs/" />
+      <recent name="$USER_HOME$/Documents/GitHub/Discrete_VAEs" />
       <recent name="$USER_HOME$/Documents/GitHub" />
     </key>
   </component>

@@ -71,7 +71,7 @@ class GDINA(pl.LightningModule):
         logits = self.encoder(X)
 
         logits = logits.reshape((logits.shape[0], logits.shape[1] // 2, 2))
-        logits = (logits - logits.max(dim=-1, keepdim=True).values).exp()  # Subtract max for stability
+        #logits = (logits - logits.max(dim=-1, keepdim=True).values).exp()  # Subtract max for stability
 
 
         logits = logits.repeat(self.n_samples, 1, 1,1)
@@ -210,7 +210,11 @@ class GDINA(pl.LightningModule):
         log_likelihood = torch.sum(data * torch.log(pi_att @ delta.T + 1e-10) +
                                    (1 - data) * torch.log(1 - pi_att @ delta.T + 1e-10))
 
-        return pi_att, delta, log_likelihood
+
+        delta = delta.unsqueeze(1)
+
+
+        return pi, None,  delta, log_likelihood
 
 def expand_interactions(attributes):
     """
@@ -254,28 +258,32 @@ def sim_GDINA(N, nitems, nattributes):
     valid_Q = False
     while not valid_Q:
         for item in range(nitems):
-            n_attr_it = torch.randint(1, min(nattributes, 7) + 1, (1,)).item()
-            atts = torch.randperm(nattributes)[:n_attr_it]
+            n_attr_it = torch.randint(1, min(nattributes, 6)+1, (1,)).item()
+            atts = torch.randperm(nattributes)[:(n_attr_it)]
             Q[item, atts] = 1
-
-        if torch.all(Q.sum(dim=-1) > 1):
+        if torch.all(Q.sum(dim=0) > 1):
             valid_Q = True
+
 
     att = torch.bernoulli(torch.full((N, nattributes), 0.5))
     eff = expand_interactions(att).squeeze()
     eff = torch.column_stack((torch.ones(N), eff))
 
+
     delta = torch.rand(nitems, neffects)
     delta *= expand_interactions(torch.Tensor(Q)).squeeze()
     delta /= (delta.sum(axis=1, keepdims=True) + 1e-4)
 
+
+
+
     intercepts = np.zeros(nitems)
-
-
     delta = np.column_stack((intercepts, delta))
 
     probs = eff @ delta.T
 
-    data = np.random.binomial(1, probs).astype(float)
 
-    return data, delta, att, eff
+
+    data = np.random.binomial(1, probs).astype(float)
+    delta = np.expand_dims(delta, 1)
+    return data, delta, att, eff.detach().numpy()

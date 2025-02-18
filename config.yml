@@ -1,13 +1,13 @@
 Configs:
   GeneralConfigs:
-    model: GDINA # GDINA, LCA, or MIXIRT
+    model: MIXIRT # GDINA, LCA, or MIXIRT
     simdata: True # whether to simulate data or load it from data folder
     repetition : 1 # determines where data is saved and/or which data is loaded
     save_plot: True # whether to save a recovery plot
-    separate_plots: True # whether to save additional plots for each class/effect
+    separate_plots: False # whether to save additional plots for each class/effect
   SimConfigs:
     N: 10000
-    n_items: 100
+    n_items: 30
     save: False # whether to save the data to disk
   OptimConfigs:
     learning_rate: 0.05
@@ -21,12 +21,18 @@ Configs:
     gumbel_decay: .90
     gumbel_min_temp: .4
     n_iw_samples: 2
-    n_rep: 10 # number of times to fit the model with different starting values
+    n_rep: 1 # number of times to fit the model with different starting values
     accelerator: 'cpu' # cpu or mps
   ModelSpecificConfigs:
-    # general optimization true:
+    # RBM
     gibbs_samples: 1
+    # LCA
     n_class: 8 # number of classes in LCA
-    n_attributes: 2 # number of attributes in GDINA
     emb_dim: 5 # size of latent embeddings in VQ-VAE
-    lca_method: 'vq' #st, gs, vq, dvae, log or rbm
+    lca_method: 'gs' #st, gs, vq, dvae, log or rbm
+    # GDINA
+    n_attributes: 2 # number of attributes in GDINA
+    # MIXIRT
+    mirt_dim: 3 # number of mirt dimenisons for the mixture MIRT model
+    cov: 0 # covariance between latent dimensions for the mixture MIRT model
+    class_prob: .5 # class probability for the mixture MIRT mdoel

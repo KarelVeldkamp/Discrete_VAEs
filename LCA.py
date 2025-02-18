@@ -269,7 +269,7 @@ class LCA(pl.LightningModule):
 
         if self.sampler_type == 'gs':
             pi = self.fscores(torch.Tensor(data)).mean(0)
-            est_probs = self.decoder(torch.eye(self.latent_dims))
+            est_probs = self.decoder(torch.eye(self.latent_dims)).T
         elif self.sampler_type == 'vq':
             ze = self.encoder(data)
             pred_class_ix = self.sampler.closest_emb_ix(ze)
@@ -282,10 +282,11 @@ class LCA(pl.LightningModule):
             embs = self.sampler.embeddings.weight
             est_probs = self.decoder(embs)
 
-        log_likelihood = torch.sum(data * torch.log(pi@est_probs + 1e-10) +
-                                (1 - data) * torch.log(1 - pi@est_probs + 1e-10))
+        log_likelihood = torch.sum(data * torch.log(pi@est_probs.T + 1e-10) +
+                                (1 - data) * torch.log(1 - pi@est_probs.T + 1e-10))
 
-        return pi, est_probs, log_likelihood
+        est_probs = est_probs.unsqueeze(1)
+        return pi, None, est_probs, log_likelihood
 
 
 class RestrictedBoltzmannMachine(pl.LightningModule):
@@ -351,7 +352,7 @@ def sim_LCA(N, nitems, nclass, seed=None):
     class_probs = np.ones(nclass) / nclass
 
     # sample conditional probabilities
-    cond_probs = np.expand_dims(np.random.uniform(.3, .7, nitems), 0).repeat(nclass, 0)
+    cond_probs = np.expand_dims(np.random.uniform(.3, .7, nitems), -1).repeat(nclass, -1)
     # Iterate over each row
     for i in range(nclass):
         # Randomly choose the number of entries to set to one between 50 and 100
@@ -361,7 +362,7 @@ def sim_LCA(N, nitems, nclass, seed=None):
         indices = np.random.choice(nitems, num_ones, replace=False)
 
         # Set the selected indices to one
-        cond_probs[i, indices] = np.random.uniform(.1, .9, num_ones)  # += .20#
+        cond_probs[indices, i] = np.random.uniform(.1, .9, num_ones)  # += .20#
 
     # Generate true class membership for each person
     true_class_ix = np.random.choice(np.arange(nclass), size=(N,), p=class_probs)
@@ -369,7 +370,8 @@ def sim_LCA(N, nitems, nclass, seed=None):
     true_class[np.arange(N), true_class_ix] = 1
 
     # simulate responses
-    prob = true_class @ cond_probs
+    prob = true_class @ cond_probs.T
     data = np.random.binomial(1, prob).astype(float)
 
+    cond_probs = np.expand_dims(cond_probs, 1)
     return data, true_class, cond_probs
