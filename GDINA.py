@@ -75,6 +75,7 @@ class GDINA(pl.LightningModule):
 
 
         logits = logits.repeat(self.n_samples, 1, 1,1)
+
         probs = F.softmax(logits, dim=-1)
 
         att = self.sampler(probs)

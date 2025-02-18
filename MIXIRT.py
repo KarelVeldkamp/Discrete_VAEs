@@ -124,7 +124,9 @@ class VAE(pl.LightningModule):
         log_sigma = log_sigma.repeat(self.n_samples,1,1)
         log_pi = cl.repeat(self.n_samples,1,1)
 
-
+        # print(torch.min(log_pi))
+        # print(torch.max(log_pi))
+        # print(torch.any(torch.isnan(log_pi)))
         cl = self.GumbelSoftmax(log_pi)
 
         z = self.sampler(mu, log_sigma)
@@ -181,8 +183,11 @@ class VAE(pl.LightningModule):
         kl_concrete = (log_q_cl_x - log_p_cl)
 
 
+
         # combine into ELBO
         elbo = logll - kl_normal - kl_concrete
+
+
         # # perform importance weighting
         with torch.no_grad():
             weight = (elbo - elbo.logsumexp(dim=0)).exp()
@@ -193,6 +198,7 @@ class VAE(pl.LightningModule):
                 z.register_hook(lambda grad: (weight * grad).float())
         #
         loss = (-weight * elbo).sum(0).mean()
+
 
 
 
@@ -255,8 +261,8 @@ class VAE(pl.LightningModule):
         log_likelihood = torch.sum(data * probs.log() + (1-data) * (1-probs).log())
 
 
-        items1 = torch.cat((a1_est.T, d1_est.unsqueeze(-1)), -1)
-        items2 = torch.cat((a2_est.T, d2_est.unsqueeze(-1)), -1)
+        items1 = torch.cat((d1_est.unsqueeze(-1),a1_est.T), -1)
+        items2 = torch.cat((d2_est.unsqueeze(-1),a2_est.T), -1)
 
         itempars = torch.cat((items1.unsqueeze(-1), items2.unsqueeze(-1)), -1)
 
@@ -269,6 +275,7 @@ def sim_MIXIRT(N, nitems, nclass, mirt_dim, Q, class_prob=.5, cov=0):
     # Convert to one-hot encoding
     true_class = np.eye(2)[true_class_ix]
 
+
     covMat = np.full((mirt_dim, mirt_dim), cov)  # covariance matrix of dimensions, zero for now
     np.fill_diagonal(covMat, 1)
     true_theta = np.random.multivariate_normal([0] * mirt_dim, covMat, N)
@@ -276,15 +283,17 @@ def sim_MIXIRT(N, nitems, nclass, mirt_dim, Q, class_prob=.5, cov=0):
     # true_slopes = np.random.uniform(.5, 2, (cfg['nitems'], cfg['mirt_dim'],2))
     true_slopes = np.repeat(np.random.uniform(.5, 2, (nitems, mirt_dim, 1)), 2, -1)
 
-    true_itempars = np.concatenate((true_difficulty[:, np.newaxis, :], true_slopes), axis=1)
+
 
     b0 = true_difficulty[:, 0]
     b1 = true_difficulty[:, 1]
+
+    true_slopes *= np.expand_dims(Q, -1)
     a0 = true_slopes[:, :, 0]
     a1 = true_slopes[:, :, 1]
 
-    a0 *= Q
-    a1 *= Q
+    true_itempars = np.concatenate((true_difficulty[:, np.newaxis, :], true_slopes), axis=1)
+
 
     exponent = (np.dot(true_theta, a0.T) + b0) * (true_class[:,[0]]) + (np.dot(true_theta, a1.T) + b1) * (true_class[:,[1]])
 

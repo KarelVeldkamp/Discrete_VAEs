@@ -14,7 +14,7 @@ import yaml
 import time
 import os
 import pandas as pd
-
+from scipy.stats import pearsonr
 
 # read in configurations
 with open("./config.yml", "r") as f:
@@ -51,12 +51,19 @@ if cfg['GeneralConfigs']['simdata']:
             cov=cfg['ModelSpecificConfigs']['cov'])
 # or read data from disk
 else:
-    raise NotImplementedError()
+    true_class = pd.read_csv(f'~/Documents/GitHub/VAE_MIXIRT/true/pars/class_{3}_{0.3}.csv').values.astype('int')
+    true_theta = pd.read_csv(f'~/Documents/GitHub/VAE_MIXIRT/true/pars/theta_{3}_{0.3}.csv').values.astype('float')
+    true_difficulty = pd.read_csv(f'~/Documents/GitHub/VAE_MIXIRT/true/pars/difficulty_{3}_{0.3}.csv').values.astype('float')
+    true_slopes0 = pd.read_csv(f'~/Documents/GitHub/VAE_MIXIRT/true/pars/slopes0_{3}_{0.3}.csv').values.astype('float')
+    true_slopes1 = pd.read_csv(f'~/Documents/GitHub/VAE_MIXIRT/true/pars/slopes1_{3}_{0.3}.csv').values.astype('float')
+    true_slopes = np.concatenate((np.expand_dims(true_slopes0, -1), np.expand_dims(true_slopes1, -1)),
+                                 -1)  # repeat for both classes
+    data = pd.read_csv(f'~/Documents/GitHub/VAE_MIXIRT/true/data/data_{3}_{0.3}_{1}.csv').values.astype('float')
 
+    Q = true_slopes[:, :, 0] != 0
 
+    true_itempars = np.concatenate((true_difficulty[:, np.newaxis, :], true_slopes), 1)
 
-    true_class = attributes
-    true_itempars = np.concat((intercepts.T, delta),-1)
 
 
 #true_itempars = torch.Tensor(true_itempars)
@@ -86,7 +93,7 @@ for i in range(cfg['OptimConfigs']['n_rep']):
                                         mode='min')],
                       enable_progress_bar=True,
                       enable_model_summary=False,
-                      detect_anomaly=False,
+                      detect_anomaly=cfg['OptimConfigs']['detect_anomaly'],
                       accelerator=cfg['OptimConfigs']['accelerator'])
 
     # fit the model (LCA, GDINA or MIXIRT)
@@ -156,6 +163,7 @@ for i in range(cfg['OptimConfigs']['n_rep']):
         best_model = model
         best_itempars = itempars
         best_pi = pi
+        best_theta = theta
         best_class_ix = torch.argmax(best_pi, 1)
 
 # for mixture IRT and LCA we have to account for label switching:
@@ -172,12 +180,14 @@ if  cfg['GeneralConfigs']['model'] in ['MIXIRT', 'LCA']:
     # true_itempars = true_itempars[new_order, :]
     # true_class = true_class[:, new_order]
 
+
     _, new_order = linear_sum_assignment(-Cor(best_itempars.flatten(0,1).detach().numpy().T,
                                               torch.Tensor(true_itempars).flatten(0,1).detach().numpy().T
                                               )
                                          )
 
     true_itempars = true_itempars[:,:, new_order]
+
     true_class = true_class[:, new_order]
     true_class_ix = np.argmax(true_class, 1)
     # compute latent class accuracy
@@ -185,6 +195,15 @@ if  cfg['GeneralConfigs']['model'] in ['MIXIRT', 'LCA']:
 elif cfg['GeneralConfigs']['model'] == 'GDINA':
 
     lc_acc = (true_class.detach().numpy() == (pi > .5).float().detach().numpy()).mean()
+# The latent dimension in the mixture is only identified up to the sign so we might have to flip the sign:
+if cfg['GeneralConfigs']['model'] == 'MIXIRT':
+    for dim in range(theta.shape[1]):
+        print(pearsonr(true_theta[:, dim], theta[:, dim]).statistic)
+        if pearsonr(true_theta[:, dim], theta[:, dim]).statistic < 0:
+            best_theta[:, dim] *= -1
+            best_itempars[:,dim+1, :] *= -1
+
+
 
 # print(true_class.shape)
 # print(best_pi.shape)
@@ -203,7 +222,6 @@ print(mse_cond)
 
 
 # plotting
-
 empty_directory('./figures/')
 if cfg['GeneralConfigs']['save_plot']:
     # save recovery plot of item parameters in /figures/
@@ -217,11 +235,10 @@ if cfg['GeneralConfigs']['save_plot']:
 
                 best_itempars_dim = best_itempars[:,dim, cl]
                 true_itempars_dim = true_itempars[:,dim, cl]
-                print(best_itempars_dim)
-                print(true_itempars_dim)
-                recovery_plot(true=true_itempars_dim.detach().numpy()[true_itempars_dim.detach().numpy() != 0],
-                              est=best_itempars_dim.detach().numpy()[true_itempars_dim.detach().numpy() != 0],
-                              name=f'Itemparameter_recovery_{cl+1}_{dim+1}')
+
+                recovery_plot(true=true_itempars_dim[true_itempars_dim!= 0],
+                              est=best_itempars_dim.detach().numpy()[true_itempars_dim!= 0],
+                              name=f'Itemparameter_recovery_ls{cl+1}_dim{dim+1}')
 
 
 
