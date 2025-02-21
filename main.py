@@ -1,10 +1,11 @@
-import torch
+import sys
 
+import torch
 from LCA import *
 from GDINA import *
 from MIXIRT import *
 from helpers import Cor, MSE, recovery_plot, empty_directory
-from data import MemoryDataset
+from data import *
 from torch.utils.data import DataLoader
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
@@ -15,26 +16,32 @@ import time
 import os
 import pandas as pd
 from scipy.stats import pearsonr
+import matplotlib.pyplot as plt
 
 # read in configurations
 with open("./config.yml", "r") as f:
     cfg = yaml.safe_load(f)
     cfg = cfg['Configs']
 
-# simulate data
-if cfg['GeneralConfigs']['simdata']:
+# if command line arguments are provided, use these to overwrite configurations
+if len(sys.argv) > 1:
+    cfg = parse_arguments(sys.argv, cfg)
+
+# simulate data_pars
+if cfg['SimConfigs']['simdata']:
     if cfg['GeneralConfigs']['model'] == 'LCA':
         data, true_class, true_itempars = sim_LCA(
             N=cfg['SimConfigs']['N'],
             nitems=cfg['SimConfigs']['n_items'],
             nclass=cfg['ModelSpecificConfigs']['n_class'])
+        true_theta = None
     elif cfg['GeneralConfigs']['model'] == 'GDINA':
-        data, true_itempars, true_class, true_eff = sim_GDINA(
+        data, true_itempars, true_class = sim_GDINA(
             N=cfg['SimConfigs']['N'],
             nitems=cfg['SimConfigs']['n_items'],
             nattributes=cfg['ModelSpecificConfigs']['n_attributes'])
         Q = torch.Tensor(true_itempars[:, 0,1:] != 0).float()
-
+        true_theta = None
     elif cfg['GeneralConfigs']['model'] == 'MIXIRT':
         if cfg['ModelSpecificConfigs']['mirt_dim'] > 1:
             Q = pd.read_csv(f'./QMatrices/QMatrix{cfg['ModelSpecificConfigs']['mirt_dim']}DSimple.csv', header=None).values.astype(float)
@@ -49,25 +56,20 @@ if cfg['GeneralConfigs']['simdata']:
             Q = Q,
             class_prob=cfg['ModelSpecificConfigs']['class_prob'],
             cov=cfg['ModelSpecificConfigs']['cov'])
-# or read data from disk
+
+    # potentially save simualted data and parametes to disk
+    if cfg['SimConfigs']['save_data_pars']:
+        write_data_pars(cfg, data, true_class, true_itempars, true_theta)
+        exit()
+# or read data_pars from disk
 else:
-    true_class = pd.read_csv(f'~/Documents/GitHub/VAE_MIXIRT/true/pars/class_{3}_{0.3}.csv').values.astype('int')
-    true_theta = pd.read_csv(f'~/Documents/GitHub/VAE_MIXIRT/true/pars/theta_{3}_{0.3}.csv').values.astype('float')
-    true_difficulty = pd.read_csv(f'~/Documents/GitHub/VAE_MIXIRT/true/pars/difficulty_{3}_{0.3}.csv').values.astype('float')
-    true_slopes0 = pd.read_csv(f'~/Documents/GitHub/VAE_MIXIRT/true/pars/slopes0_{3}_{0.3}.csv').values.astype('float')
-    true_slopes1 = pd.read_csv(f'~/Documents/GitHub/VAE_MIXIRT/true/pars/slopes1_{3}_{0.3}.csv').values.astype('float')
-    true_slopes = np.concatenate((np.expand_dims(true_slopes0, -1), np.expand_dims(true_slopes1, -1)),
-                                 -1)  # repeat for both classes
-    data = pd.read_csv(f'~/Documents/GitHub/VAE_MIXIRT/true/data/data_{3}_{0.3}_{1}.csv').values.astype('float')
+    data, true_class, true_theta, true_itempars, Q = read_data_pars(cfg)
 
-    Q = true_slopes[:, :, 0] != 0
-
-    true_itempars = np.concatenate((true_difficulty[:, np.newaxis, :], true_slopes), 1)
 
 
 
 #true_itempars = torch.Tensor(true_itempars)
-# intiralize data loader
+# intiralize data_pars loader
 dataset = MemoryDataset(data)
 train_loader = DataLoader(dataset, batch_size=cfg['OptimConfigs']['batch_size'], shuffle=True)
 test_loader = DataLoader(dataset, batch_size=data.shape[0], shuffle=False)
@@ -244,7 +246,11 @@ if cfg['GeneralConfigs']['save_plot']:
                               est=best_itempars_dim.detach().numpy()[true_itempars_dim!= 0],
                               name=f'Itemparameter_recovery_class{cl+1}_dim{dim+1}')
 
-
+    logs = pd.read_csv(f'logs/all/version_0/metrics.csv')
+    plt.figure()
+    plt.plot(logs['epoch'], logs['train_loss'])
+    plt.title('Training loss')
+    plt.savefig(f'./figures/training_loss.png')
 
 
 

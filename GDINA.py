@@ -287,4 +287,4 @@ def sim_GDINA(N, nitems, nattributes):
 
     data = np.random.binomial(1, probs).astype(float)
     delta = np.expand_dims(delta, 1)
-    return data, delta, att, eff.detach().numpy()
+    return data, delta, att

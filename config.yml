@@ -1,22 +1,22 @@
 Configs:
   GeneralConfigs:
     model: MIXIRT # GDINA, LCA, or MIXIRT
-    simdata: True # whether to simulate data or load it from data folder
-    repetition : 1 # determines where data is saved and/or which data is loaded
+    repetition : 1 # determines where data_pars is saved and/or which data_pars is loaded
     save_plot: True # whether to save a recovery plot
     separate_plots: False # whether to save additional plots for each class/effect
   SimConfigs:
     N: 10000
     n_items: 30
-    save: False # whether to save the data to disk
+    simdata: False # whether to simulate data_pars or load it from data_pars folder
+    save_data_pars: False # whether to save the data_pars to disk
   OptimConfigs:
-    learning_rate: 0.01
+    learning_rate: 0.05
     single_epoch_test_run: False
     detect_anomaly: False # Only set to true for debugging: checks what operation is causing NAs
     max_epochs: 2000
     min_epochs: 10
-    min_delta: .0008
-    patience: 20
+    min_delta: .008
+    patience: 50
     batch_size: 1000
     gumbel_temperature: 1
     gumbel_decay: .999

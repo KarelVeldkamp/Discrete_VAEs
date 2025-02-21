@@ -24,8 +24,8 @@ class Encoder(pl.LightningModule):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         A forward pass though the encoder network
-        :param x: a tensor representing a batch of response data
-        :param m: a mask representing which data is missing
+        :param x: a tensor representing a batch of response data_pars
+        :param m: a mask representing which data_pars is missing
         :return: a sample from the latent dimensions
         """
 

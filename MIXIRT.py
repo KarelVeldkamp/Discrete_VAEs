@@ -1,4 +1,3 @@
-
 import torch
 from torch import nn
 import torch.nn.functional as F
@@ -39,7 +38,7 @@ class IRTDecoder(pl.LightningModule):
         """
         Forward pass though the network
         :param x: tensor representing a sample from the latent dimensions
-        :param m: mask representing which data is missing
+        :param m: mask representing which data_pars is missing
         :return: tensor representing reconstructed item responses
         """
 
@@ -110,9 +109,9 @@ class VAE(pl.LightningModule):
     def forward(self, x: torch.Tensor, m: torch.Tensor=None):
         """
         forward pass though the entire network
-        :param x: tensor representing response data
-        :param m: mask representing which data is missing
-        :return: tensor representing a reconstruction of the input response data
+        :param x: tensor representing response data_pars
+        :param m: mask representing which data_pars is missing
+        :return: tensor representing a reconstruction of the input response data_pars
         """
         latent_vector = self.encoder(x)
         mu = latent_vector[:,0:self.latent_dims]
@@ -160,7 +159,7 @@ class VAE(pl.LightningModule):
 
         input = input.unsqueeze(0).repeat(reco.shape[0], 1, 1) # repeat input k times (to match reco size)
         log_p_x_theta = ((input * reco).clamp(1e-7).log() + ((1 - input) * (1 - reco)).clamp(1e-7).log()) # compute log ll
-        logll = (log_p_x_theta * mask).sum(dim=-1, keepdim=True) # set elements based on missing data to zero
+        logll = (log_p_x_theta * mask).sum(dim=-1, keepdim=True) # set elements based on missing data_pars to zero
         #
         cl = cl / cl.sum(dim=-1, keepdim=True)
         # calculate normal KL divergence
@@ -287,6 +286,7 @@ def sim_MIXIRT(N, nitems, nclass, mirt_dim, Q, class_prob=.5, cov=0):
 
     b0 = true_difficulty[:, 0]
     b1 = true_difficulty[:, 1]
+
 
     true_slopes *= np.expand_dims(Q, -1)
     a0 = true_slopes[:, :, 0]

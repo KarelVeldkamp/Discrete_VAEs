@@ -32,7 +32,7 @@ class Decoder(pl.LightningModule):
         """
         Forward pass though the network
         :param x: tensor representing a sample from the latent dimensions
-        :param m: mask representing which data is missing
+        :param m: mask representing which data_pars is missing
         :return: tensor representing reconstructed item responses
         """
         out = self.linear(x)
@@ -63,7 +63,7 @@ class VQDecoder(pl.LightningModule):
         """
         Forward pass though the network
         :param x: tensor representing a sample from the latent dimensions
-        :param m: mask representing which data is missing
+        :param m: mask representing which data_pars is missing
         :return: tensor representing reconstructed item responses
         """
         out = F.elu(self.linear(x))
@@ -135,9 +135,9 @@ class LCA(pl.LightningModule):
     def forward(self, x: torch.Tensor, m: torch.Tensor=None):
         """
         forward pass though the entire network
-        :param x: tensor representing response data
-        :param m: mask representing which data is missing
-        :return: tensor representing a reconstruction of the input response data
+        :param x: tensor representing response data_pars
+        :param m: mask representing which data_pars is missing
+        :return: tensor representing a reconstruction of the input response data_pars
         """
 
         log_pi = self.encoder(x)
@@ -262,8 +262,8 @@ class LCA(pl.LightningModule):
     def compute_parameters(self, data):
         """
         compute the log likelihood,
-        :param data: data matrix
-        :return: the log likelihood of the data, as well as the estimated class- and conditonal probabilities
+        :param data: data_pars matrix
+        :return: the log likelihood of the data_pars, as well as the estimated class- and conditonal probabilities
         """
         data = torch.Tensor(data)
 
