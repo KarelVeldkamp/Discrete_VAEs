@@ -18,6 +18,11 @@ import pandas as pd
 from scipy.stats import pearsonr
 import matplotlib.pyplot as plt
 
+# set working directory to source file location
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
+
 # read in configurations
 with open("./config.yml", "r") as f:
     cfg = yaml.safe_load(f)
