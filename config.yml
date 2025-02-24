@@ -1,6 +1,6 @@
 Configs:
   GeneralConfigs:
-    model: LCA # GDINA, LCA, or MIXIRT
+    model: GDINA # GDINA, LCA, or MIXIRT
     repetition : 1 # determines where data_pars is saved and/or which data_pars is loaded
     save_plot: True # whether to save a recovery plot
     separate_plots: False # whether to save additional plots for each class/effect
@@ -35,7 +35,7 @@ Configs:
     emb_dim: 5 # size of latent embeddings in VQ-VAE
     lca_method: 'gs' #st, gs, vq, dvae, log or rbm
     # GDINA
-    n_attributes: 2 # number of attributes in GDINA
+    n_attributes: 10 # number of attributes in GDINA
     # MIXIRT
     mirt_dim: 3 # number of mirt dimenisons for the mixture MIRT model
     cov: 0.3 # covariance between latent dimensions for the mixture MIRT model

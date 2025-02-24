@@ -46,7 +46,7 @@ if cfg['SimConfigs']['sim_data']:
         true_theta = None
     elif cfg['GeneralConfigs']['model'] == 'MIXIRT':
         if cfg['ModelSpecificConfigs']['mirt_dim'] > 1:
-            Q = pd.read_csv(f'./QMatrices/QMatrix{cfg['ModelSpecificConfigs']['mirt_dim']}DSimple.csv', header=None).values.astype(float)
+            Q = pd.read_csv(f'./QMatrices/QMatrix{cfg["ModelSpecificConfigs"]["mirt_dim"]}DSimple.csv', header=None).values.astype(float)
         else:
             Q = np.ones((cfg['SimConfigs']['n_items'], cfg['ModelSpecificConfigs']['mirt_dim']))
 

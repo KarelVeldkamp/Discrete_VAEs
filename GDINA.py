@@ -277,8 +277,8 @@ def sim_gdina_pars(N, nitems, nattributes):
     return att, delta
 
 
-def sim_GDINA(N, nitems, nattributes, simpars):
-    if simpars:
+def sim_GDINA(N, nitems, nattributes, sim_pars):
+    if sim_pars:
         att, delta = sim_gdina_pars(N, nitems, nattributes)
         # np.save(f'./saved_data/LCA/class/{nattributes}_{nitems}.npy', att)
         # np.save(f'./saved_data/LCA/itempars/{nattributes}_{nitems}.npy', delta)
