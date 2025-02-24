@@ -301,8 +301,8 @@ def sim_MIXIRT(N, nitems, nclass, mirt_dim, Q, class_prob=.5, cov=0, sim_pars=Fa
         true_itempars = np.load(f'./saved_data/MIXIRT/itempars/{mirt_dim}.npy')
 
 
-    exponent = ((np.dot(true_theta, true_itempars[:, 1:3, 0].T) + true_itempars[:, 0, 0]) * (true_class[:,[0]]) + \
-                (np.dot(true_theta, true_itempars[:, 1:3, 1].T) + true_itempars[:, 0, 1]) * (true_class[:,[1]]))
+    exponent = ((np.dot(true_theta, true_itempars[:, 1:(mirt_dim+1), 0].T) + true_itempars[:, 0, 0]) * (true_class[:,[0]]) + \
+                (np.dot(true_theta, true_itempars[:, 1:(mirt_dim+1), 1].T) + true_itempars[:, 0, 1]) * (true_class[:,[1]]))
 
     prob = np.exp(exponent) / (1 + np.exp(exponent))
     data = np.random.binomial(1, prob).astype(float)
