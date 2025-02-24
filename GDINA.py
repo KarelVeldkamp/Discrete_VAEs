@@ -251,40 +251,46 @@ def expand_interactions(attributes):
 
     return effects
 
-
-def sim_GDINA(N, nitems, nattributes):
+def sim_gdina_pars(N, nitems, nattributes):
     neffects = 2 ** nattributes - 1
     Q = torch.zeros((nitems, nattributes))
 
     valid_Q = False
     while not valid_Q:
         for item in range(nitems):
-            n_attr_it = torch.randint(1, min(nattributes, 6)+1, (1,)).item()
+            n_attr_it = torch.randint(1, min(nattributes, 6) + 1, (1,)).item()
             atts = torch.randperm(nattributes)[:(n_attr_it)]
             Q[item, atts] = 1
         if torch.all(Q.sum(dim=0) > 1):
             valid_Q = True
 
-
     att = torch.bernoulli(torch.full((N, nattributes), 0.5))
-    eff = expand_interactions(att).squeeze()
-    eff = torch.column_stack((torch.ones(N), eff))
 
 
     delta = torch.rand(nitems, neffects)
     delta *= expand_interactions(torch.Tensor(Q)).squeeze()
     delta /= (delta.sum(axis=1, keepdims=True) + 1e-4)
 
-
-
-
     intercepts = np.zeros(nitems)
     delta = np.column_stack((intercepts, delta))
 
+    return att, delta
+
+
+def sim_GDINA(N, nitems, nattributes, simpars):
+    if simpars:
+        att, delta = sim_gdina_pars(N, nitems, nattributes)
+        # np.save(f'./saved_data/LCA/class/{nattributes}_{nitems}.npy', att)
+        # np.save(f'./saved_data/LCA/itempars/{nattributes}_{nitems}.npy', delta)
+    else:
+        att = np.load(f'./saved_data/LCA/class/{nattributes}_{nitems}.npy')
+        delta = np.load(f'./saved_data/LCA/itempars/{nattributes}_{nitems}.npy')
+    eff = expand_interactions(att).squeeze()
+    eff = torch.column_stack((torch.ones(N), eff))
+
     probs = eff @ delta.T
-
-
 
     data = np.random.binomial(1, probs).astype(float)
     delta = np.expand_dims(delta, 1)
+
     return data, delta, att

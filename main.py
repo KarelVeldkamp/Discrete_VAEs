@@ -28,18 +28,20 @@ if len(sys.argv) > 1:
     cfg = parse_arguments(sys.argv, cfg)
 
 # simulate data_pars
-if cfg['SimConfigs']['simdata']:
+if cfg['SimConfigs']['sim_data']:
     if cfg['GeneralConfigs']['model'] == 'LCA':
         data, true_class, true_itempars = sim_LCA(
             N=cfg['SimConfigs']['N'],
             nitems=cfg['SimConfigs']['n_items'],
-            nclass=cfg['ModelSpecificConfigs']['n_class'])
+            nclass=cfg['ModelSpecificConfigs']['n_class'],
+            sim_pars=cfg['SimConfigs']['sim_pars'])
         true_theta = None
     elif cfg['GeneralConfigs']['model'] == 'GDINA':
         data, true_itempars, true_class = sim_GDINA(
             N=cfg['SimConfigs']['N'],
             nitems=cfg['SimConfigs']['n_items'],
-            nattributes=cfg['ModelSpecificConfigs']['n_attributes'])
+            nattributes=cfg['ModelSpecificConfigs']['n_attributes'],
+            sim_pars=cfg['SimConfigs']['sim_pars'])
         Q = torch.Tensor(true_itempars[:, 0,1:] != 0).float()
         true_theta = None
     elif cfg['GeneralConfigs']['model'] == 'MIXIRT':
@@ -55,7 +57,8 @@ if cfg['SimConfigs']['simdata']:
             mirt_dim=cfg['ModelSpecificConfigs']['mirt_dim'],
             Q = Q,
             class_prob=cfg['ModelSpecificConfigs']['class_prob'],
-            cov=cfg['ModelSpecificConfigs']['cov'])
+            cov=cfg['ModelSpecificConfigs']['cov'],
+            sim_pars=cfg['SimConfigs']['sim_pars'])
 
     # potentially save simualted data and parametes to disk
     if cfg['SimConfigs']['save_data_pars']:
@@ -195,15 +198,21 @@ if  cfg['GeneralConfigs']['model'] in ['MIXIRT', 'LCA']:
     # compute latent class accuracy
     lc_acc = np.mean(best_class_ix.detach().numpy() == true_class_ix)
 elif cfg['GeneralConfigs']['model'] == 'GDINA':
-
     lc_acc = (true_class.detach().numpy() == (pi > .5).float().detach().numpy()).mean()
-# The latent dimension in the mixture is only identified up to the sign so we might have to flip the sign:
+
 if cfg['GeneralConfigs']['model'] == 'MIXIRT':
+    # The latent dimension in the mixture is only identified up to the sign so we might have to flip the sign:
     for dim in range(theta.shape[1]):
         print(pearsonr(true_theta[:, dim], theta[:, dim]).statistic)
         if pearsonr(true_theta[:, dim], theta[:, dim]).statistic < 0:
             best_theta[:, dim] *= -1
             best_itempars[:,dim+1, :] *= -1
+
+    mse_theta = MSE(best_theta, true_theta)
+    bias_theta = np.mean(best_theta - true_theta)
+    var_theta = np.var(best_theta)
+else:
+    mse_theta = bias_theta = var_theta = None
 
 
 
@@ -216,11 +225,13 @@ if cfg['GeneralConfigs']['model'] == 'MIXIRT':
 
 
 # compute MSE of conditional probabilities
-mse_cond = MSE(best_itempars.detach().numpy(), true_itempars)
+mse_itempars = MSE(best_itempars[true_itempars!=0].detach().numpy(), true_itempars[true_itempars!=0])
+
+mse_itempars = MSE(best_itempars[true_itempars!=0].detach().numpy(), true_itempars[true_itempars!=0])
+bias_itempars = np.mean(best_itempars[true_itempars!=0].detach().numpy() - true_itempars[true_itempars!=0])
+var_itempars = np.var(best_itempars[true_itempars!=0].detach().numpy())
 
 
-print(lc_acc)
-print(mse_cond)
 
 
 # plotting
@@ -251,7 +262,27 @@ if cfg['GeneralConfigs']['save_plot']:
     plt.plot(logs['epoch'], logs['train_loss'])
     plt.title('Training loss')
     plt.savefig(f'./figures/training_loss.png')
+if cfg['GeneralConfigs']['save_parameter_estimates']:
+    par_names = ['class', 'itempars', 'theta']
 
+    par = []
+    value = []
+    par_i = []
+    par_j = []
+    for i, est in enumerate([pi, itempars, theta]):
+        if est is not None:
+            for r in range(est.shape[0]):
+                for c in range(est.shape[1]):
+                    par.append(par_names[i])
+                    value.append(est[r, c].detach().numpy())
+                    par_i.append(r)
+                    par_j.append(c)
 
-
+    result = pd.DataFrame({'parameter': par, 'i': par_i, 'j': par_j, 'value': value})
+    result.to_csv(f"./results/estimates/estimates_{'_'.join(sys.argv[1:])}.csv", index=False)
+if cfg['GeneralConfigs']['save_metrics']:
+    metrics = [lc_acc, mse_itempars, mse_theta, var_itempars, var_theta, bias_itempars, bias_theta, runtime]
+    with open(f"./results/metrics/metrics_{'_'.join(sys.argv[1:])}.csv", 'w') as f:
+        for metric in metrics:
+            f.write(f"{metric}\n")
 

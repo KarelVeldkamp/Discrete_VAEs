@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1afaf8ee-2420-408e-b48a-692cb232e8d7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/results/estimates/estimates_.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/results/metrics/metrics_.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GDINA.py" beforeDir="false" afterPath="$PROJECT_DIR$/GDINA.py" afterDir="false" />
@@ -12,7 +14,6 @@
       <change beforePath="$PROJECT_DIR$/MIXIRT.py" beforeDir="false" afterPath="$PROJECT_DIR$/MIXIRT.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data.py" beforeDir="false" afterPath="$PROJECT_DIR$/data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/encoders.py" beforeDir="false" afterPath="$PROJECT_DIR$/encoders.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -51,20 +52,21 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/karel/Documents/GitHub/Discrete_VAEs/data_pars/mixirt",
+    "last_opened_file_path": "/Users/karel/Documents/GitHub/Discrete_VAEs/saved_data",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/saved_data" />
       <recent name="$PROJECT_DIR$/data_pars/mixirt" />
       <recent name="$PROJECT_DIR$/data_pars/gdina" />
       <recent name="$PROJECT_DIR$/parameters" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/data_pars/lca" />
       <recent name="$PROJECT_DIR$/" />
-      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/.." />
     </key>
   </component>

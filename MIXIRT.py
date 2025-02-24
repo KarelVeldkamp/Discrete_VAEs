@@ -266,9 +266,8 @@ class VAE(pl.LightningModule):
         itempars = torch.cat((items1.unsqueeze(-1), items2.unsqueeze(-1)), -1)
 
         return cl_est, theta_est, itempars, log_likelihood
-def sim_MIXIRT(N, nitems, nclass, mirt_dim, Q, class_prob=.5, cov=0):
-    assert nclass ==2, 'only implemented for 2 classes'
 
+def sim_mixirt_pars(N, nitems, nclass, mirt_dim, Q, class_prob=.5, cov=0):
     # Step 1: Creating true_class tensor with torch
     true_class_ix = np.random.binomial(1, class_prob, N)
     # Convert to one-hot encoding
@@ -281,25 +280,32 @@ def sim_MIXIRT(N, nitems, nclass, mirt_dim, Q, class_prob=.5, cov=0):
     true_difficulty = np.random.uniform(-2, 2, (nitems, 2))
     # true_slopes = np.random.uniform(.5, 2, (cfg['nitems'], cfg['mirt_dim'],2))
     true_slopes = np.repeat(np.random.uniform(.5, 2, (nitems, mirt_dim, 1)), 2, -1)
-
-
-
-    b0 = true_difficulty[:, 0]
-    b1 = true_difficulty[:, 1]
-
-
     true_slopes *= np.expand_dims(Q, -1)
-    a0 = true_slopes[:, :, 0]
-    a1 = true_slopes[:, :, 1]
+
 
     true_itempars = np.concatenate((true_difficulty[:, np.newaxis, :], true_slopes), axis=1)
 
+    return true_theta, true_class, true_itempars
 
-    exponent = (np.dot(true_theta, a0.T) + b0) * (true_class[:,[0]]) + (np.dot(true_theta, a1.T) + b1) * (true_class[:,[1]])
+
+def sim_MIXIRT(N, nitems, nclass, mirt_dim, Q, class_prob=.5, cov=0, sim_pars=False):
+    if sim_pars:
+        true_theta, true_class, true_itempars = sim_mixirt_pars(N, nitems, nclass, mirt_dim, Q, class_prob, cov)
+        # np.save(f'./saved_data/MIXIRT/theta/{mirt_dim}.npy', true_theta)
+        # np.save(f'./saved_data/MIXIRT/class/{mirt_dim}.npy', true_class)
+        # np.save(f'./saved_data/MIXIRT/itempars/{mirt_dim}.npy', true_itempars)
+
+    else:
+        true_theta = np.load(f'./saved_data/MIXIRT/theta/{mirt_dim}.npy')
+        true_class = np.load(f'./saved_data/MIXIRT/class/{mirt_dim}.npy')
+        true_itempars = np.load(f'./saved_data/MIXIRT/itempars/{mirt_dim}.npy')
+
+
+    exponent = ((np.dot(true_theta, true_itempars[:, 1:3, 0].T) + true_itempars[:, 0, 0]) * (true_class[:,[0]]) + \
+                (np.dot(true_theta, true_itempars[:, 1:3, 1].T) + true_itempars[:, 0, 1]) * (true_class[:,[1]]))
 
     prob = np.exp(exponent) / (1 + np.exp(exponent))
     data = np.random.binomial(1, prob).astype(float)
     true_class = np.squeeze(true_class)
-
 
     return data, true_class, true_theta, true_itempars

@@ -344,13 +344,7 @@ class RestrictedBoltzmannMachine(pl.LightningModule):
         return torch.optim.Adam(self.parameters(), lr=self.lr, amsgrad=True)
 
 
-def sim_LCA(N, nitems, nclass, seed=None):
-    if seed:
-        np.random.seed(seed)
-
-    # generate uniform class probabilities #TODO allow for diferent distribtion of class probabilities
-    class_probs = np.ones(nclass) / nclass
-
+def sim_lca_pars(N, nitems, nclass):
     # sample conditional probabilities
     cond_probs = np.expand_dims(np.random.uniform(.3, .7, nitems), -1).repeat(nclass, -1)
     # Iterate over each row
@@ -364,10 +358,28 @@ def sim_LCA(N, nitems, nclass, seed=None):
         # Set the selected indices to one
         cond_probs[indices, i] = np.random.uniform(.1, .9, num_ones)  # += .20#
 
+    # generate uniform class probabilities #TODO allow for diferent distribtion of class probabilities
+    class_probs = np.ones(nclass) / nclass
     # Generate true class membership for each person
     true_class_ix = np.random.choice(np.arange(nclass), size=(N,), p=class_probs)
     true_class = np.zeros((N, nclass))
     true_class[np.arange(N), true_class_ix] = 1
+
+    return cond_probs, true_class
+
+def sim_LCA(N, nitems, nclass, sim_pars=True):
+
+    if sim_pars:
+        cond_probs, true_class = sim_lca_pars(N, nitems, nclass)
+
+        # np.save(f'./saved_data/LCA/itempars/{nclass}_{nitems}.npy', cond_probs)
+        # np.save(f'./saved_data/LCA/class/{nclass}_{nitems}.npy', true_class)
+        # print(f'parameters saved.')
+        # exit()
+
+    else:
+        cond_probs = np.load(f'./saved_data/LCA/itempars/{nclass}_{nitems}.npy')
+        true_class = np.load(f'./saved_data/LCA/class/{nclass}_{nitems}.npy')
 
     # simulate responses
     prob = true_class @ cond_probs.T

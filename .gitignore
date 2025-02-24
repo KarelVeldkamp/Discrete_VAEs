@@ -6,3 +6,5 @@
 /venv/**
 /saved_data/*
 /saved_data/**
+/results/*
+/results/**

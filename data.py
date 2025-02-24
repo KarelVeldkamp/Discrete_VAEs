@@ -43,7 +43,7 @@ def parse_arguments(args, cfg):
 
 def get_paths(cfg):
     if cfg['GeneralConfigs']['model'] == 'LCA':
-        arguments = [str(cfg['ModelSpecificConfigs']['n_class']), str(cfg['SimConfigs']['n_items']), cfg['ModelSpecificConfigs']['lca_method']]
+        arguments = [str(cfg['ModelSpecificConfigs']['n_class']), str(cfg['SimConfigs']['n_items'])]
     if cfg['GeneralConfigs']['model'] == 'GDINA':
         arguments = [str(cfg['ModelSpecificConfigs']['n_attributes']), str(cfg['SimConfigs']['n_items'])]
     if cfg['GeneralConfigs']['model'] == 'MIXIRT':
