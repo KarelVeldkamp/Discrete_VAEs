@@ -59,6 +59,9 @@ def get_paths(cfg):
     base_dir = os.path.abspath('./saved_data')
     model = cfg['GeneralConfigs']['model']
     paths = [os.path.join(base_dir, model, par, f"{filename}") for par in pars]
+
+    # add replication number to path for data
+    paths[0] = f'{paths[0]}_{cfg["GeneralConfigs"]["repetition"]}'
     return paths
 
 
