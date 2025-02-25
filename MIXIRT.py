@@ -277,7 +277,10 @@ def sim_mixirt_pars(N, nitems, nclass, mirt_dim, Q, class_prob=.5, cov=0):
     covMat = np.full((mirt_dim, mirt_dim), cov)  # covariance matrix of dimensions, zero for now
     np.fill_diagonal(covMat, 1)
     true_theta = np.random.multivariate_normal([0] * mirt_dim, covMat, N)
-    true_difficulty = np.random.uniform(-2, 2, (nitems, 2))
+    true_difficulty = np.repeat(np.random.uniform(-2, 2, (nitems, 1)), 2, axis=1)
+    true_difficulty[:,1] += np.random.normal(0,.1, true_difficulty.shape[0])
+
+
     # true_slopes = np.random.uniform(.5, 2, (cfg['nitems'], cfg['mirt_dim'],2))
     true_slopes = np.repeat(np.random.uniform(.5, 2, (nitems, mirt_dim, 1)), 2, -1)
     true_slopes *= np.expand_dims(Q, -1)

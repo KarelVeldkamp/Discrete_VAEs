@@ -51,7 +51,7 @@ if cfg['SimConfigs']['sim_data']:
         true_theta = None
     elif cfg['GeneralConfigs']['model'] == 'MIXIRT':
         if cfg['ModelSpecificConfigs']['mirt_dim'] > 1:
-            Q = pd.read_csv(f'./QMatrices/QMatrix{cfg["ModelSpecificConfigs"]["mirt_dim"]}D.csv', header=None).values.astype(float)
+            Q = pd.read_csv(f'./Qmatrices/QMatrix{cfg["ModelSpecificConfigs"]["mirt_dim"]}D.csv', header=None).values.astype(float)
         else:
             Q = np.ones((cfg['SimConfigs']['n_items'], cfg['ModelSpecificConfigs']['mirt_dim']))
 
@@ -208,14 +208,14 @@ elif cfg['GeneralConfigs']['model'] == 'GDINA':
 if cfg['GeneralConfigs']['model'] == 'MIXIRT':
     # The latent dimension in the mixture is only identified up to the sign so we might have to flip the sign:
     for dim in range(theta.shape[1]):
-        print(pearsonr(true_theta[:, dim], theta[:, dim]).statistic)
         if pearsonr(true_theta[:, dim], theta[:, dim]).statistic < 0:
             best_theta[:, dim] *= -1
             best_itempars[:,dim+1, :] *= -1
 
-    mse_theta = MSE(best_theta, true_theta)
-    bias_theta = np.mean(best_theta - true_theta)
-    var_theta = np.var(best_theta)
+
+    mse_theta = MSE(best_theta.detach().numpy(), true_theta)
+    bias_theta = np.mean(best_theta.detach().numpy() - true_theta)
+    var_theta = np.var(best_theta.detach().numpy())
 else:
     mse_theta = bias_theta = var_theta = None
 
