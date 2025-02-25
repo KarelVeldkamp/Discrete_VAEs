@@ -263,7 +263,9 @@ class VAE(pl.LightningModule):
         items1 = torch.cat((d1_est.unsqueeze(-1),a1_est.T), -1)
         items2 = torch.cat((d2_est.unsqueeze(-1),a2_est.T), -1)
 
+
         itempars = torch.cat((items1.unsqueeze(-1), items2.unsqueeze(-1)), -1)
+
 
         return cl_est, theta_est, itempars, log_likelihood
 
@@ -278,7 +280,8 @@ def sim_mixirt_pars(N, nitems, nclass, mirt_dim, Q, class_prob=.5, cov=0):
     np.fill_diagonal(covMat, 1)
     true_theta = np.random.multivariate_normal([0] * mirt_dim, covMat, N)
     true_difficulty = np.repeat(np.random.uniform(-2, 2, (nitems, 1)), 2, axis=1)
-    true_difficulty[:,1] += np.random.normal(0,.1, true_difficulty.shape[0])
+    true_difficulty[:,1] += np.random.normal(0,.2, true_difficulty.shape[0])
+    #true_difficulty = np.random.uniform(-2, 2, (nitems, 2))
 
 
     # true_slopes = np.random.uniform(.5, 2, (cfg['nitems'], cfg['mirt_dim'],2))

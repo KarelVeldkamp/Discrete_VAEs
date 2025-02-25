@@ -168,6 +168,7 @@ for i in range(cfg['OptimConfigs']['n_rep']):
     # check if the model fit is better than previous repetitions
     pi, theta, itempars, ll = model.compute_parameters(data)
 
+
     if ll > best_ll:
         best_ll = ll
         best_model = model
