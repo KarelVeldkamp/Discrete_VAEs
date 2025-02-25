@@ -24,20 +24,23 @@ class MemoryDataset(Dataset):
 
 def parse_arguments(args, cfg):
     # general arguments
-    cfg['GeneralConfigs']['model'] = args[1]
-    cfg['OptimConfigs']['n_iw_samples'] = int(args[2])
-    cfg['OptimConfigs']['learning_rate'] = float(args[3])
-    cfg['OptimConfigs']['gumbel_decay'] = float(args[4])
-    cfg['SimConfigs']['n_items'] = int(args[5])
+    cfg['GeneralConfigs']['repetition'] = args[1]
+    cfg['GeneralConfigs']['model'] = args[2]
+    cfg['OptimConfigs']['n_iw_samples'] = int(args[3])
+    cfg['OptimConfigs']['learning_rate'] = float(args[4])
+    cfg['OptimConfigs']['gumbel_decay'] = float(args[5])
+    cfg['SimConfigs']['n_items'] = int(args[6])
 
     # model specifc arguments
     if cfg['GeneralConfigs']['model'] == 'LCA':
-        cfg['ModelSpecificConfigs']['n_class'] = int(args[6])
-        cfg['ModelSpecificConfigs']['lca_method'] = args[7]
+        cfg['ModelSpecificConfigs']['n_class'] = int(args[7])
+        cfg['ModelSpecificConfigs']['lca_method'] = args[8]
     if cfg['GeneralConfigs']['model'] == 'GDINA':
-        cfg['ModelSpecificConfigs']['n_attributes'] = int(args[6])
+        cfg['ModelSpecificConfigs']['n_attributes'] = int(args[7])
     if cfg['GeneralConfigs']['model'] == 'MIXIRT':
-        cfg['ModelSpecificConfigs']['mirt_dim'] = int(args[6])
+        cfg['ModelSpecificConfigs']['mirt_dim'] = int(args[7])
+
+
 
     return cfg
 
