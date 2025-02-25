@@ -1,6 +1,6 @@
 Configs:
   GeneralConfigs:
-    model: LCA # GDINA, LCA, or MIXIRT
+    model: GDINA # GDINA, LCA, or MIXIRT
     repetition : 1 # determines where data_pars is saved and/or which data_pars is loaded
     save_plot: True # whether to save a recovery plot
     separate_plots: False # whether to save additional plots for each class/effect

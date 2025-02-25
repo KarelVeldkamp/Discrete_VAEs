@@ -7,7 +7,6 @@
     <list default="true" id="1afaf8ee-2420-408e-b48a-692cb232e8d7" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GDINA.py" beforeDir="false" afterPath="$PROJECT_DIR$/GDINA.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LCA.py" beforeDir="false" afterPath="$PROJECT_DIR$/LCA.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
