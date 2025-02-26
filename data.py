@@ -83,7 +83,8 @@ def read_data_pars(cfg):
         Q = None
     elif cfg['GeneralConfigs']['model'] == 'GDINA':
         theta = None
-        Q = (itempars[:, 0:, 1:3] != 0).astype(float)
+
+        Q = (itempars[:, 0, 1:] != 0).astype(float)
     elif cfg['GeneralConfigs']['model'] == 'MIXIRT':
         theta = np.load(paths[3])
         Q = (itempars[:, 1:, 0] != 0).astype(float)

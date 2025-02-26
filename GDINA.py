@@ -274,8 +274,6 @@ def sim_gdina_pars(N, nitems, nattributes):
     intercepts = np.zeros(nitems)
     delta = np.column_stack((intercepts, delta))
 
-    print(delta.shape)
-    exit()
     return att, delta
 
 
@@ -285,8 +283,9 @@ def sim_GDINA(N, nitems, nattributes, sim_pars):
         # np.save(f'./saved_data/LCA/class/{nattributes}_{nitems}.npy', att)
         # np.save(f'./saved_data/LCA/itempars/{nattributes}_{nitems}.npy', delta)
     else:
-        att = torch.Tensor(np.load(f'./saved_data/LCA/class/{nattributes}_{nitems}.npy')).squeeze()
-        delta = torch.Tensor(np.load(f'./saved_data/LCA/itempars/{nattributes}_{nitems}.npy'))
+        att = torch.Tensor(np.load(f'./saved_data/GDINA/class/{nattributes}_{nitems}.npy'))
+        delta = torch.Tensor(np.load(f'./saved_data/GDINA/itempars/{nattributes}_{nitems}.npy')).squeeze()
+
     eff = expand_interactions(att).squeeze()
     eff = torch.column_stack((torch.ones(N), eff))
 

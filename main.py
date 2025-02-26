@@ -74,8 +74,6 @@ else:
     data, true_class, true_theta, true_itempars, Q = read_data_pars(cfg)
 
 
-
-
 #true_itempars = torch.Tensor(true_itempars)
 # intiralize data_pars loader
 dataset = MemoryDataset(data)
