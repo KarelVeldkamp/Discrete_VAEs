@@ -75,6 +75,7 @@ class VAE(pl.LightningModule):
                  n_iw_samples: int,
                  temperature:float,
                  temperature_decay:float,
+                 min_temp:float,
                  nclass: int = 2,
                  beta: int = 1):
         """
@@ -95,6 +96,8 @@ class VAE(pl.LightningModule):
 
         self.GumbelSoftmax = GumbelSampler(temperature=temperature,
                                            temperature_decay=temperature_decay)
+
+        self.min_temp = min_temp
         self.sampler = NormalSampler()
         self.latent_dims = latent_dims
 
@@ -146,7 +149,6 @@ class VAE(pl.LightningModule):
 
         mask = torch.ones_like(data)
         loss, _ = self.loss(data, reco, mask, mu, log_sigma, z, pi, cl)
-        self.GumbelSoftmax.temperature *= self.GumbelSoftmax.temperature_decay
         self.log('train_loss',loss)
 
         return {'loss': loss}
@@ -198,10 +200,10 @@ class VAE(pl.LightningModule):
         #
         loss = (-weight * elbo).sum(0).mean()
 
-
-
-
         return loss, weight
+
+    def on_train_epoch_end(self):
+        self.GumbelSoftmax.temperature = max(self.GumbelSoftmax.temperature * self.GumbelSoftmax.temperature_decay, self.min_temp)
 
     def fscores(self, batch, n_mc_samples=500):
         data = batch

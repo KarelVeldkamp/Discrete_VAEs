@@ -156,6 +156,7 @@ for i in range(cfg['OptimConfigs']['n_rep']):
                   n_iw_samples=cfg['OptimConfigs']['n_iw_samples'],
                   temperature=cfg['OptimConfigs']['gumbel_temperature'],
                   temperature_decay=cfg['OptimConfigs']['gumbel_decay'],
+                  min_temp=cfg['OptimConfigs']['gumbel_min_temp'],
                   beta=1)
 
     start = time.time()
@@ -202,7 +203,7 @@ if  cfg['GeneralConfigs']['model'] in ['MIXIRT', 'LCA']:
     # compute latent class accuracy
     lc_acc = np.mean(best_class_ix.detach().numpy() == true_class_ix)
 elif cfg['GeneralConfigs']['model'] == 'GDINA':
-    lc_acc = (true_class.detach().numpy() == (pi > .5).float().detach().numpy()).mean()
+    lc_acc = (true_class== (pi > .5).float().detach().numpy()).mean()
 
 if cfg['GeneralConfigs']['model'] == 'MIXIRT':
     # The latent dimension in the mixture is only identified up to the sign so we might have to flip the sign:
@@ -219,7 +220,7 @@ else:
     mse_theta = bias_theta = var_theta = None
 
 
-
+print(model.GumbelSoftmax.temperature)
 # print(true_class.shape)
 # print(best_pi.shape)
 # cor = Cor(true_class.T, best_pi.T.detach().numpy())
