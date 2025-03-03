@@ -17,6 +17,7 @@ import os
 import pandas as pd
 from scipy.stats import pearsonr
 import matplotlib.pyplot as plt
+import shutil
 
 # set working directory to source file location
 abspath = os.path.abspath(__file__)
@@ -89,7 +90,7 @@ empty_directory('./logs/')
 best_ll = -float('inf')
 for i in range(cfg['OptimConfigs']['n_rep']):
     # initialize logger and trainer
-    logger = CSVLogger("logs", name='all', version=0)
+    logger = CSVLogger("logs", name='_'.join(sys.argv), version=0)
     trainer = Trainer(fast_dev_run=cfg['OptimConfigs']['single_epoch_test_run'],
                       max_epochs=cfg['OptimConfigs']['max_epochs'],
                       min_epochs=cfg['OptimConfigs']['min_epochs'],
@@ -262,7 +263,10 @@ if cfg['GeneralConfigs']['save_plot']:
                               est=best_itempars_dim.detach().numpy()[true_itempars_dim!= 0],
                               name=f'Itemparameter_recovery_class{cl+1}_dim{dim+1}')
 
-    logs = pd.read_csv(f'logs/all/version_0/metrics.csv')
+    # read the logs and remove them after (we only save the plot)
+    logs = pd.read_csv(f'logs/{"_".join(sys.argv)}/version_0/metrics.csv')
+    shutil.rmtree(f'logs/{"_".join(sys.argv)}/')
+
     plt.figure()
     plt.plot(logs['epoch'], logs['train_loss'])
     plt.title('Training loss')
