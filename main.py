@@ -82,7 +82,7 @@ train_loader = DataLoader(dataset, batch_size=cfg['OptimConfigs']['batch_size'],
 test_loader = DataLoader(dataset, batch_size=data.shape[0], shuffle=False)
 
 # empty logs
-empty_directory('./logs/')
+#empty_directory('./logs/')
 
 
 
@@ -221,7 +221,6 @@ else:
     mse_theta = bias_theta = var_theta = None
 
 
-print(model.GumbelSoftmax.temperature)
 # print(true_class.shape)
 # print(best_pi.shape)
 # cor = Cor(true_class.T, best_pi.T.detach().numpy())

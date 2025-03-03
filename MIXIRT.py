@@ -165,7 +165,7 @@ class VAE(pl.LightningModule):
         #
         cl = cl / cl.sum(dim=-1, keepdim=True)
         # calculate normal KL divergence
-        log_q_theta_x = torch.distributions.Normal(mu.detach(), sigma.exp().detach()).log_prob(z).sum(dim = -1, keepdim = True) # log q(Theta|X)
+        log_q_theta_x = torch.distributions.Normal(mu.detach(), sigma.exp().detach()+ 1e-7).log_prob(z).sum(dim = -1, keepdim = True) # log q(Theta|X)
         log_p_theta = torch.distributions.Normal(torch.zeros_like(z).to(input), scale=torch.ones(mu.shape[2]).to(input)).log_prob(z).sum(dim = -1, keepdim = True) # log p(Theta)
         kl_normal =  log_q_theta_x - log_p_theta # kl divergence
 
