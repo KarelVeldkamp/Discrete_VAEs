@@ -103,6 +103,8 @@ def write_data_pars(cfg, data, cl, itempars, theta=None):
     np.save(paths[0], data)
     np.save(paths[1], cl)
     np.save(paths[2], itempars)
+
+    print(itempars.shape)
     if theta is not None:
         np.save(paths[3], theta)
     else:

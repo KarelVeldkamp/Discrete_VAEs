@@ -371,6 +371,7 @@ def sim_LCA(N, nitems, nclass, sim_pars=True):
 
     if sim_pars:
         cond_probs, true_class = sim_lca_pars(N, nitems, nclass)
+        cond_probs = np.expand_dims(cond_probs, 1)
         # np.save(f'./saved_data/LCA/itempars/{nclass}_{nitems}.npy', cond_probs)
         # np.save(f'./saved_data/LCA/class/{nclass}_{nitems}.npy', true_class)
         # print(f'parameters saved.')
@@ -380,9 +381,10 @@ def sim_LCA(N, nitems, nclass, sim_pars=True):
         cond_probs = np.load(f'./saved_data/LCA/itempars/{nclass}_{nitems}.npy')
         true_class = np.load(f'./saved_data/LCA/class/{nclass}_{nitems}.npy')
 
+
     # simulate responses
     prob = true_class @ cond_probs.T.squeeze()
     data = np.random.binomial(1, prob).astype(float)
 
-    cond_probs = np.expand_dims(cond_probs, 1)
+
     return data, true_class, cond_probs
