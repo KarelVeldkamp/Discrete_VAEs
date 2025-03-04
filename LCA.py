@@ -383,7 +383,7 @@ def sim_LCA(N, nitems, nclass, sim_pars=True):
 
 
     # simulate responses
-    prob = true_class @ cond_probs.T.squeeze()
+    prob = true_class @ cond_probs.squeeze().T
     data = np.random.binomial(1, prob).astype(float)
 
 
