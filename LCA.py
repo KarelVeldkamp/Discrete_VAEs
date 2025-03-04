@@ -280,7 +280,7 @@ class LCA(pl.LightningModule):
             pi[torch.arange(data.shape[0]), pred_class_ix] = 1
 
             embs = self.sampler.embeddings.weight
-            est_probs = self.decoder(embs)
+            est_probs = self.decoder(embs).T 
 
         log_likelihood = torch.sum(data * torch.log(pi@est_probs.T + 1e-10) +
                                 (1 - data) * torch.log(1 - pi@est_probs.T + 1e-10))

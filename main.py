@@ -230,11 +230,10 @@ else:
 
 
 # compute MSE of conditional probabilities
-mse_itempars = MSE(best_itempars[true_itempars!=0].detach().numpy(), true_itempars[true_itempars!=0])
+mse_itempars = MSE(best_itempars.detach().numpy()[true_itempars!=0], true_itempars[true_itempars!=0])
 
-mse_itempars = MSE(best_itempars[true_itempars!=0].detach().numpy(), true_itempars[true_itempars!=0])
-bias_itempars = np.mean(best_itempars[true_itempars!=0].detach().numpy() - true_itempars[true_itempars!=0])
-var_itempars = np.var(best_itempars[true_itempars!=0].detach().numpy())
+bias_itempars = np.mean(best_itempars.detach().numpy()[true_itempars!=0] - true_itempars[true_itempars!=0])
+var_itempars = np.var(best_itempars.detach().numpy()[true_itempars!=0])
 
 
 
