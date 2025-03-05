@@ -256,8 +256,11 @@ class VAE(pl.LightningModule):
         #theta_est = latent_samples[:, 0:self.latent_dims]
         #cl = latent_samples[:, (2*self.latent_dims)+2]
 
+
         logits = cl_est[:,[0]] * (theta_est @ a1_est + d1_est) + cl_est[:,[1]] * (theta_est @ a2_est + d2_est)
         probs = F.sigmoid(logits)
+        epsilon = 1e-6  # Small constant to avoid log(0)
+        probs = torch.clamp(probs, epsilon, 1 - epsilon)
 
         log_likelihood = torch.sum(data * probs.log() + (1-data) * (1-probs).log())
 
