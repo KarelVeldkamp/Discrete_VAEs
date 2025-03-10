@@ -220,12 +220,7 @@ else:
     mse_theta = bias_theta = var_theta = None
 
 
-# print(true_class.shape)
-# print(best_pi.shape)
-# cor = Cor(true_class.T, best_pi.T.detach().numpy())
-# cor[np.isnan(cor)] = 1
-# _, new_order = linear_sum_assignment(-cor)
-
+print(lc_acc)
 
 
 # compute MSE of conditional probabilities
