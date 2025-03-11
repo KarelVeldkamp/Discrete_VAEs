@@ -220,7 +220,7 @@ else:
     mse_theta = bias_theta = var_theta = None
 
 
-print(lc_acc)
+
 
 
 # compute MSE of conditional probabilities
@@ -229,7 +229,8 @@ mse_itempars = MSE(best_itempars.detach().numpy()[true_itempars!=0], true_itempa
 bias_itempars = np.mean(best_itempars.detach().numpy()[true_itempars!=0] - true_itempars[true_itempars!=0])
 var_itempars = np.var(best_itempars.detach().numpy()[true_itempars!=0])
 
-
+print(f'lc acc: {lc_acc}')
+print(f'mse itempars: {mse_itempars}')
 
 
 # plotting

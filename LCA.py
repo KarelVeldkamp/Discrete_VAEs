@@ -228,8 +228,8 @@ class LCA(pl.LightningModule):
         data = batch
 
         if self.n_samples == 1:
-            mu = self.sampler.softmax(self.encoder(data))[:, :, 0]
-            return mu.unsqueeze(0)
+            pi = F.softmax(self.encoder(data), -1)
+            return pi.unsqueeze(0)
         else:
 
             scores = torch.empty((n_mc_samples, data.shape[0], self.latent_dims))

@@ -35,3 +35,4 @@ class Encoder(pl.LightningModule):
 
         return log_pi
 
+

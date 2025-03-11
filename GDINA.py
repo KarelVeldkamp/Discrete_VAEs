@@ -3,7 +3,7 @@ import torch.nn.functional as F
 import torch.distributions as dist
 import torch
 from samplers import GumbelSampler
-from encoders import Encoder
+from encoders import *
 import numpy as np
 
 class GDINADecoder(pl.LightningModule):
@@ -57,6 +57,7 @@ class GDINA(pl.LightningModule):
 
 
         self.encoder = Encoder(n_items, self.n_attributes*2, self.n_attributes*2)
+        #self.encoder = GDINAEncoder(n_items, self.n_attributes)
         self.sampler = GumbelSampler(**kwargs)
 
         self.decoder = GDINADecoder(Q)
@@ -70,15 +71,15 @@ class GDINA(pl.LightningModule):
     def forward(self, X):
         logits = self.encoder(X)
 
-        logits = logits.reshape((logits.shape[0], logits.shape[1] // 2, 2))
+        logits = logits.reshape((logits.shape[0], logits.shape[1] // 2, 2)).exp()
         #logits = (logits - logits.max(dim=-1, keepdim=True).values).exp()  # Subtract max for stability
 
 
         logits = logits.repeat(self.n_samples, 1, 1,1)
 
-        probs = F.softmax(logits, dim=-1)
+        #probs = F.softmax(logits, dim=-1)
 
-        att = self.sampler(probs)
+        att = self.sampler(logits)
         att = att / att.sum(-1, keepdim=True) # make sure probabilities sum to one (sometimes not true due to numerical issues)
         att = att.clamp(1e-5, 1-1e-5)
 
@@ -159,7 +160,9 @@ class GDINA(pl.LightningModule):
         data = batch
 
         if self.n_samples == 1:
-            mu = self.sampler.softmax(self.encoder(data))[:, :, 0]
+            logits = self.encoder(data)
+            logits = logits.reshape((logits.shape[0], logits.shape[1] // 2, 2)).exp()
+            mu = self.sampler.softmax(logits)[:, :, 0]
             return mu.unsqueeze(0)
         else:
 
@@ -195,14 +198,8 @@ class GDINA(pl.LightningModule):
         data = torch.Tensor(data)
         pi = self.fscores(torch.Tensor(data)).mean(0)
 
-
         pi_att = expand_interactions(pi).squeeze()
-
-
-
         pi_att = torch.cat((torch.ones(pi_att.shape[0]).unsqueeze(-1), pi_att), -1)
-
-
 
         delta = self.decoder.delta
         delta = self.decoder.constrain_delta(delta)

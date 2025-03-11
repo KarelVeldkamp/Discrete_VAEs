@@ -1,21 +1,21 @@
 Configs:
   GeneralConfigs:
-    model: MIXIRT # GDINA, LCA, or MIXIRT
-    repetition : 3 # determines where data_pars is saved and/or which data_pars is loaded
+    model: GDINA # GDINA, LCA, or MIXIRT
+    repetition : 1 # determines where data_pars is saved and/or which data_pars is loaded
     save_plot: True # whether to save a recovery plot
     separate_plots: False # whether to save additional plots for each class/effect
     save_metrics: True
     save_parameter_estimates: True
   SimConfigs:
     N: 10000
-    n_items: 28
+    n_items: 100
     sim_pars: True
     sim_data: True  # whether to simulate data_pars or load it from data_pars folder
-    save_data_pars: False  # whether to save the data_pars to disk
+    save_data_pars: False   # whether to save the data_pars to disk
   OptimConfigs:
-    learning_rate: 0.05
+    learning_rate: 0.01
     single_epoch_test_run: False
-    detect_anomaly: True # Only set to true for debugging: checks what operation is causing NAs
+    detect_anomaly: False # Only set to true for debugging: checks what operation is causing NAs
     max_epochs: 2000
     min_epochs: 10
     min_delta: 0.000000008
@@ -24,7 +24,7 @@ Configs:
     gumbel_temperature: 1
     gumbel_decay: .999
     gumbel_min_temp: .4
-    n_iw_samples: 2
+    n_iw_samples: 10
     n_rep: 1 # number of times to fit the model with different starting values
     accelerator: 'cpu' # cpu or mps
   ModelSpecificConfigs:
@@ -35,7 +35,7 @@ Configs:
     emb_dim: 5 # size of latent embeddings in VQ-VAE
     lca_method: 'gs' #st, gs, vq, dvae, log or rbm
     # GDINA
-    n_attributes: 2 # number of attributes in GDINA
+    n_attributes: 10 # number of attributes in GDINA
     # MIXIRT
     mirt_dim: 3 # number of mirt dimenisons for the mixture MIRT model
     cov: 0.3 # covariance between latent dimensions for the mixture MIRT model
