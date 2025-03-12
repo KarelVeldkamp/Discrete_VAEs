@@ -205,12 +205,15 @@ class VAE(pl.LightningModule):
     def on_train_epoch_end(self):
         self.GumbelSoftmax.temperature = max(self.GumbelSoftmax.temperature * self.GumbelSoftmax.temperature_decay, self.min_temp)
 
-    def fscores(self, batch, n_mc_samples=500):
+    def fscores(self, batch, n_mc_samples=50):
         data = batch
 
         if self.n_samples == 1:
-            mu, _, cl = self.encoder(data)
-            return mu.unsqueeze(0), cl.unsqueeze(0)
+            latent_vector = self.encoder(data)
+            mu = latent_vector[:, 0:self.latent_dims]
+            log_sigma = latent_vector[:, self.latent_dims:(self.latent_dims * 2)]
+            cl = latent_vector[:, (self.latent_dims * 2):(self.latent_dims * 2 + 2)]
+            return mu.unsqueeze(0).detach(), cl.unsqueeze(0).detach()
         else:
             scores = torch.empty((n_mc_samples, data.shape[0], self.latent_dims))
             classes = torch.empty((n_mc_samples, data.shape[0], 2))
