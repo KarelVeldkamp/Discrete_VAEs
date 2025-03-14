@@ -11,7 +11,7 @@ replication = args[2]
 NITEMS = args[3]
 NREP=1
 
-data = np$load(path.expand(paste0(c('~./saved_data/LCA/data/', NCLASS, '_', NITEMS, '_', replication, '.npy'), collapse = ''))) +1
+data = np$load(path.expand(paste0(c('./saved_data/LCA/data/', NCLASS, '_', NITEMS, '_', replication, '.npy'), collapse = ''))) +1
 true_class = np$load(path.expand(paste0(c('./saved_data/LCA/class/', NCLASS, '_', NITEMS,'.npy'), collapse = '')))
 true_probs = np$load(path.expand(paste0(c('./saved_data/LCA/itempars/', NCLASS, '_', NITEMS,'.npy'), collapse = '')))
 true_probs= matrix(true_probs, nrow=nrow(true_probs))

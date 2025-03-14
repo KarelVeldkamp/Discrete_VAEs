@@ -6,9 +6,9 @@ np <- import("numpy")
 args = commandArgs(trailingOnly = TRUE)
 
 # for now set arguments manually
-NATTRIBUTES = args[1]
-replication = args[2]
-NITEMS = args[3]
+NATTRIBUTES = as.numeric(args[1])
+replication = as.numeric(args[2])
+NITEMS = as.numeric(args[3])
 
 expand_interactions <- function(attributes) {
   n_attributes <- ncol(attributes)
