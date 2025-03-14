@@ -57,9 +57,9 @@ reverse_expand_interactions <- function(effects, n_attributes) {
   return(Q_matrix)
 }
 
-data = np$load(path.expand(paste0(c('~/Documents/GitHub/Discrete_VAEs/saved_data/GDINA/data/', NATTRIBUTES, '_', NITEMS, '_', replication, '.npy'), collapse = ''))) 
-true_att = np$load(path.expand(paste0(c('~/Documents/GitHub/Discrete_VAEs/saved_data/GDINA/class/', NATTRIBUTES, '_', NITEMS,'.npy'), collapse = '')))
-true_itempars = np$load(path.expand(paste0(c('~/Documents/GitHub/Discrete_VAEs/saved_data/GDINA/itempars/', NATTRIBUTES, '_', NITEMS,'.npy'), collapse = '')))
+data = np$load(path.expand(paste0(c('./saved_data/GDINA/data/', NATTRIBUTES, '_', NITEMS, '_', replication, '.npy'), collapse = ''))) 
+true_att = np$load(path.expand(paste0(c('./saved_data/GDINA/class/', NATTRIBUTES, '_', NITEMS,'.npy'), collapse = '')))
+true_itempars = np$load(path.expand(paste0(c('./saved_data/GDINA/itempars/', NATTRIBUTES, '_', NITEMS,'.npy'), collapse = '')))
 true_itempars= matrix(true_itempars, nrow=nrow(true_itempars))
 true_delta = true_itempars[,-1]
 true_intercepts = true_itempars[,1]
