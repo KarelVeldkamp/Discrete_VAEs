@@ -6,9 +6,9 @@ np <- import("numpy")
 
 args = commandArgs(trailingOnly = TRUE)
 
-NCLASS = args[1]
+NCLASS = as.numeric(args[1])
 replication = args[2]
-NITEMS = args[3]
+NITEMS = as.numeric(args[3])
 NREP=1
 
 data = np$load(path.expand(paste0(c('./saved_data/LCA/data/', NCLASS, '_', NITEMS, '_', replication, '.npy'), collapse = ''))) +1
