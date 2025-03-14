@@ -208,7 +208,7 @@ elif cfg['GeneralConfigs']['model'] == 'GDINA':
 if cfg['GeneralConfigs']['model'] == 'MIXIRT':
     # The latent dimension in the mixture is only identified up to the sign so we might have to flip the sign:
     for dim in range(theta.shape[1]):
-        if pearsonr(true_theta[:, dim], theta[:, dim]).statistic < 0:
+        if pearsonr(true_theta[:, dim], theta[:, dim])[0] < 0:
             best_theta[:, dim] *= -1
             best_itempars[:,dim+1, :] *= -1
 

@@ -6,9 +6,9 @@ np <- import("numpy")
 
 args = commandArgs(trailingOnly = TRUE)
 
-NCLASS = 8
-replication = 1
-NITEMS = 30
+NCLASS = args[1]
+replication = args[2]
+NITEMS = args[3]
 NREP=1
 
 data = np$load(path.expand(paste0(c('~/Documents/GitHub/Discrete_VAEs/saved_data/LCA/data/', NCLASS, '_', NITEMS, '_', replication, '.npy'), collapse = ''))) +1
@@ -45,7 +45,7 @@ mse_itempars = mean((true_probs - t(est_probs))^2)
 mse_theta = NA
 var_itempars = var(est_probs)
 var_theta = NA
-bias_itempars = mean(true_probs - t(est_probs))
+bias_itempars = mean(t(est_probs) - true_probs)
 bias_theta = NA 
 
 
@@ -54,7 +54,7 @@ value = c()
 par_i = c()
 par_j = c()
 
-est_probs = array(t(est_probs), dim = c(20,1,8))
+est_probs = array(t(est_probs), dim = c(NITEMS,1,NCLASS))
 estimates = list(est_class_probs, est_probs)
 par_names = c('class', 'itempars')
 for (i in 1:2){
@@ -82,13 +82,13 @@ results = data.frame('model'='LCA',
 
 # write estimates to file
 
-print(paste0(c('~/Documents/GitHub/LCA_VAE/results/estimates/est_lca_', NCLASS, '_', N, '_', replication, '_', NITEMS, '_', NREP, '.csv'), collapse=''))
-write.csv(results, paste0(c('~/Documents/GitHub/LCA_VAE/results/estimates/est_lca_', NCLASS, '_', N, '_', replication, '_', NITEMS, '_', NREP, '.csv'), collapse=''))
+print(paste0(c('./results/estimates/mmlmetrics_LCA_', NCLASS, '_', N, '_', replication, '_', NITEMS, '_', NREP, '.csv'), collapse=''))
+write.csv(results, paste0(c('./results/estimates/mmlmetrics_LCA_', NCLASS, '_', N, '_', replication, '_', NITEMS, '_', NREP, '.csv'), collapse=''))
 
 # write metrics to file
 
 metrics = c(as.character(acc), as.character(mse_theta), as.character(mse_theta), as.character(var_itempars), as.character(var_theta),
             as.character(bias_itempars), as.character(bias_theta), as.character(runtime))
-fileConn<-file(paste0(c('~/Documents/GitHub/LCA_VAE/results/metrics/lca_', NCLASS, '_', N, '_', replication, '_', NITEMS, '_', NREP, '.txt'), collapse=''))
+fileConn<-file(paste0(c('./results/metrics/mmlmetrics_LCA__', NCLASS, '_', N, '_', replication, '_', NITEMS, '_', NREP, '.txt'), collapse=''))
 writeLines(metrics ,fileConn)
 close(fileConn)
