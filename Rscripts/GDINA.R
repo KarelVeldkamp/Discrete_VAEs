@@ -3,12 +3,21 @@ library(GDINA)
 np <- import("numpy")
 
 # read command line arguments
-args = commandArgs(trailingOnly = TRUE)
+args = commandArgs(trailingOnly = FALSE)
+filename = strsplit(args[grep("--file=", commandArgs(trailingOnly = FALSE))], '=')[[1]][2]
+script_path <- normalizePath(filename)
+script_dir <- dirname(script_path)
+parent_dir <- dirname(script_dir)
+print('#')
+print(parent_dir)
+quit(save = "no")  
+
+setwd(parent_dir)
 
 # for now set arguments manually
-NATTRIBUTES = as.numeric(args[1])
-replication = as.numeric(args[2])
-NITEMS = as.numeric(args[3])
+NATTRIBUTES = as.numeric(args[6])
+replication = as.numeric(args[7])
+NITEMS = as.numeric(args[8])
 
 expand_interactions <- function(attributes) {
   n_attributes <- ncol(attributes)

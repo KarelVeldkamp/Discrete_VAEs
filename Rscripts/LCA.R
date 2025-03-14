@@ -4,11 +4,19 @@ library(reticulate)
 np <- import("numpy")
 # data reading
 
-args = commandArgs(trailingOnly = TRUE)
+# read command line arguments
+args = commandArgs(trailingOnly = FALSE)
 
-NCLASS = as.numeric(args[1])
-replication = args[2]
-NITEMS = as.numeric(args[3])
+# set working directory to the directory above
+filename = strsplit(args[grep("--file=", commandArgs(trailingOnly = FALSE))], '=')[[1]][2]
+script_path <- normalizePath(filename)
+script_dir <- dirname(script_path)
+parent_dir <- dirname(script_dir)
+setwd(parent_dir)
+
+NCLASS = as.numeric(args[6])
+replication = args[7]
+NITEMS = as.numeric(args[8])
 NREP=1
 
 data = np$load(path.expand(paste0(c('./saved_data/LCA/data/', NCLASS, '_', NITEMS, '_', replication, '.npy'), collapse = ''))) +1
