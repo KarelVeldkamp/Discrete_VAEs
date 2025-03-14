@@ -89,6 +89,6 @@ write.csv(results, paste0(c('./results/estimates/mmlmetrics_LCA_', NCLASS, '_', 
 
 metrics = c(as.character(acc), as.character(mse_theta), as.character(mse_theta), as.character(var_itempars), as.character(var_theta),
             as.character(bias_itempars), as.character(bias_theta), as.character(runtime))
-fileConn<-file(paste0(c('./results/metrics/mmlmetrics_LCA__', NCLASS, '_', N, '_', replication, '_', NITEMS, '.txt'), collapse=''))
+fileConn<-file(paste0(c('./results/metrics/mmlmetrics_LCA_', NCLASS, '_', replication, '_', NITEMS, '.txt'), collapse=''))
 writeLines(metrics ,fileConn)
 close(fileConn)
