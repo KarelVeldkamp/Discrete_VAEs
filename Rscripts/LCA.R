@@ -51,7 +51,7 @@ true_class = apply(true_class, 1, which.max)
 acc = mean(t(est_class) == true_class)
 mse_itempars = mean((true_probs - t(est_probs))^2)
 mse_theta = NA
-var_itempars = var(est_probs)
+var_itempars = var(as.vector(est_probs))
 var_theta = NA
 bias_itempars = mean(t(est_probs) - true_probs)
 bias_theta = NA 
@@ -95,7 +95,7 @@ write.csv(results, paste0(c('./results/estimates/mmlestimates_LCA_', NCLASS, '_'
 
 # write metrics to file
 
-metrics = c(as.character(acc), as.character(mse_theta), as.character(mse_theta), as.character(var_itempars), as.character(var_theta),
+metrics = c(as.character(acc), as.character(mse_itempars), as.character(mse_theta), as.character(var_itempars), as.character(var_theta),
             as.character(bias_itempars), as.character(bias_theta), as.character(runtime))
 fileConn<-file(paste0(c('./results/metrics/mmlmetrics_LCA_', NCLASS, '_', replication, '_', NITEMS, '.txt'), collapse=''))
 writeLines(metrics ,fileConn)

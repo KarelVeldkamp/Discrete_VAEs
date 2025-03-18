@@ -142,7 +142,7 @@ write.csv(results, paste0(c('./results/estimates/mmlestiamtes_GDINA_', NATTRIBUT
 
 # write metrics to file
 
-metrics = c(as.character(acc), as.character(mse_theta), as.character(mse_theta), as.character(var_itempars), as.character(var_theta),
+metrics = c(as.character(acc), as.character(mse_itempars), as.character(mse_theta), as.character(var_itempars), as.character(var_theta),
             as.character(bias_itempars), as.character(bias_theta), as.character(runtime))
 fileConn<-file(paste0(c('./results/metrics/mmlmetrics_GDINA_', NATTRIBUTES, '_', replication, '_', NITEMS, '.txt'), collapse=''))
 writeLines(metrics ,fileConn)
