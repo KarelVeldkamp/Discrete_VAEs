@@ -90,8 +90,8 @@ results = data.frame('model'='LCA',
 
 # write estimates to file
 
-print(paste0(c('./results/estimates/mmlmetrics_LCA_', NCLASS, '_', replication, '_', NITEMS, '.csv'), collapse=''))
-write.csv(results, paste0(c('./results/estimates/mmlmetrics_LCA_', NCLASS, '_', replication, '_', NITEMS, '.csv'), collapse=''))
+print(paste0(c('./results/estimates/mmlestimates_LCA_', NCLASS, '_', replication, '_', NITEMS, '.csv'), collapse=''))
+write.csv(results, paste0(c('./results/estimates/mmlestimates_LCA_', NCLASS, '_', replication, '_', NITEMS, '.csv'), collapse=''))
 
 # write metrics to file
 

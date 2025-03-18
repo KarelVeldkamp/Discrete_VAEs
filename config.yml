@@ -9,8 +9,8 @@ Configs:
   SimConfigs:
     N: 10000
     n_items: 20
-    sim_pars: True
-    sim_data: True  # whether to simulate data_pars or load it from data_pars folder
+    sim_pars: False
+    sim_data: False  # whether to simulate data_pars or load it from data_pars folder
     save_data_pars: False   # whether to save the data_pars to disk
   OptimConfigs:
     learning_rate: 0.01
