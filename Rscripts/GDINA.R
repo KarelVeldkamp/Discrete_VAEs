@@ -138,7 +138,7 @@ results = data.frame('model'='LCA',
 # write estimates to file
 
 print(paste0(c('./results/estimates/mmlestimates_GDINA_', NATTRIBUTES, '_',replication, '_', NITEMS, '.csv'), collapse=''))
-write.csv(results, paste0(c('./results/estimates/mmlestiamtes_GDINA_', NATTRIBUTES, '_', replication, '_', NITEMS, '.csv'), collapse=''))
+write.csv(results, paste0(c('./results/estimates/mmlestimates_GDINA_', NATTRIBUTES, '_', replication, '_', NITEMS, '.csv'), collapse=''))
 
 # write metrics to file
 
