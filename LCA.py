@@ -211,8 +211,8 @@ class LCA(pl.LightningModule):
 
                 with torch.no_grad():
                     weight = (elbo - elbo.logsumexp(dim=0)).exp()
-                    #if z.requires_grad:
-                     #   z.register_hook(lambda grad: (weight * grad).float())
+                    if z.requires_grad:
+                        z.register_hook(lambda grad: (weight * grad).float())
 
 
                 loss = (-weight * elbo).sum(0).mean()
