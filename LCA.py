@@ -200,7 +200,7 @@ class LCA(pl.LightningModule):
                                                             probs=unif_probs).log_prob(z).sum(-1, keepdim=True)
 
                 log_q_theta_x = dist.RelaxedOneHotCategorical(torch.Tensor([self.sampler.temperature]),
-                                                              probs=pi).log_prob(z).sum(-1, keepdim=True)
+                                                              probs=pi.detach()).log_prob(z).sum(-1, keepdim=True)
 
                 kl = (log_q_theta_x - log_p_theta)  # kl divergence
 
@@ -212,7 +212,7 @@ class LCA(pl.LightningModule):
                 with torch.no_grad():
                     weight = (elbo - elbo.logsumexp(dim=0)).exp()
                     if z.requires_grad:
-                        z.register_hook(lambda grad: (weight * grad).float())
+                        z.register_hook(lambda grad: (weight.unsqueeze(-1) * grad).float())
 
 
                 loss = (-weight * elbo).sum(0).mean()

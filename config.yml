@@ -24,7 +24,7 @@ Configs:
     gumbel_temperature: 1
     gumbel_decay: .999
     gumbel_min_temp: 0.4
-    n_iw_samples: 2
+    n_iw_samples: 5
     n_rep: 1 # number of times to fit the model with different starting values
     accelerator: 'cpu' # cpu or mps
   ModelSpecificConfigs:
@@ -33,7 +33,7 @@ Configs:
     # LCA
     n_class: 10 # number of classes in LCA
     emb_dim: 5 # size of latent embeddings in VQ-VAE
-    lca_method: 'vq' #st, gs, vq, dvae, log or rbm
+    lca_method: 'gs' #st, gs, vq, dvae, log or rbm
     # GDINA
     n_attributes: 10 # number of attributes in GDINA
     # MIXIRT
