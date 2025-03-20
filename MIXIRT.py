@@ -163,30 +163,33 @@ class VAE(pl.LightningModule):
         log_p_x_theta = ((input * reco).clamp(1e-7).log() + ((1 - input) * (1 - reco)).clamp(1e-7).log()) # compute log ll
         logll = (log_p_x_theta * mask).sum(dim=-1, keepdim=True) # set elements based on missing data_pars to zero
         #
-        cl = cl / cl.sum(dim=-1, keepdim=True)
+        #cl = cl / cl.sum(dim=-1, keepdim=True)
+
+        cl = torch.clamp(cl, min=1e-8)  # Ensure strictly positive
+        cl = cl / cl.sum(-1, keepdim=True)  # Re-normalize for numerical safety
+
+        #print(torch.max())
+
         # calculate normal KL divergence
         log_q_theta_x = torch.distributions.Normal(mu.detach(), sigma.exp().detach()+ 1e-7).log_prob(z).sum(dim = -1, keepdim = True) # log q(Theta|X)
         log_p_theta = torch.distributions.Normal(torch.zeros_like(z).to(input), scale=torch.ones(mu.shape[2]).to(input)).log_prob(z).sum(dim = -1, keepdim = True) # log p(Theta)
         kl_normal =  log_q_theta_x - log_p_theta # kl divergence
 
         # calculate concrete KL divergence
-        pi = torch.clamp(pi, min=1e-7, max=1 - 1e-7)
-        cl = torch.clamp(cl, min=1e-7, max=1 - 1e-7)
+        #pi = torch.clamp(pi, min=1e-7, max=1 - 1e-7)
+        #cl = torch.clamp(cl, min=1e-7, max=1 - 1e-7)
 
-
-
+        unif_probs = torch.full_like(pi, 1.0 / pi.shape[-1])
         log_p_cl = torch.distributions.RelaxedOneHotCategorical(torch.Tensor([self.GumbelSoftmax.temperature]).to(pi),
-                                                    probs=torch.ones_like(pi)).log_prob(cl).unsqueeze(-1)
+                                                    probs=unif_probs).log_prob(cl).unsqueeze(-1)
 
         log_q_cl_x = torch.distributions.RelaxedOneHotCategorical(torch.Tensor([self.GumbelSoftmax.temperature]).to(pi),
                                                       probs=pi).log_prob(cl).unsqueeze(-1)
 
         kl_concrete = (log_q_cl_x - log_p_cl)
 
-
-
         # combine into ELBO
-        elbo = logll - kl_normal - kl_concrete
+        elbo = logll - kl_normal #- kl_concrete
 
 
         # # perform importance weighting

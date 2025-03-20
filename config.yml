@@ -1,6 +1,6 @@
 Configs:
   GeneralConfigs:
-    model: GDINA   # GDINA, LCA, or MIXIRT
+    model: MIXIRT   # GDINA, LCA, or MIXIRT
     repetition : 1 # determines where data_pars is saved and/or which data_pars is loaded
     save_plot: True # whether to save a recovery plot
     separate_plots: False # whether to save additional plots for each class/effect
@@ -8,7 +8,7 @@ Configs:
     save_parameter_estimates: True
   SimConfigs:
     N: 10000
-    n_items: 100
+    n_items: 28
     sim_pars: True
     sim_data: True  # whether to simulate data_pars or load it from data_pars folder
     save_data_pars: False   # whether to save the data_pars to disk
@@ -19,12 +19,12 @@ Configs:
     max_epochs: 2000
     min_epochs: 10
     min_delta: 0.000000008
-    patience: 50
+    patience: 20
     batch_size: 1000
     gumbel_temperature: 1
-    gumbel_decay: .99
+    gumbel_decay: .9
     gumbel_min_temp: .1
-    n_iw_samples: 1
+    n_iw_samples: 5
     n_rep: 1 # number of times to fit the model with different starting values
     accelerator: 'cpu' # cpu or mps
   ModelSpecificConfigs:
@@ -37,6 +37,6 @@ Configs:
     # GDINA
     n_attributes: 10 # number of attributes in GDINA
     # MIXIRT
-    mirt_dim: 10 # number of mirt dimenisons for the mixture MIRT model
+    mirt_dim: 3 # number of mirt dimenisons for the mixture MIRT model
     cov: 0.3 # covariance between latent dimensions for the mixture MIRT model
     class_prob: .5 # class probability for the mixture MIRT mdoel
