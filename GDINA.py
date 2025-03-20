@@ -32,7 +32,6 @@ class GDINADecoder(pl.LightningModule):
         # Replace masked elements with zero in the final result
         delta = delta * self.Q
 
-
         return delta
 
 
@@ -54,8 +53,6 @@ class GDINA(pl.LightningModule):
         self.n_attributes = n_attributes
         self.n_items = n_items
 
-
-
         self.encoder = Encoder(n_items, self.n_attributes*2, self.n_attributes*2)
         #self.encoder = GDINAEncoder(n_items, self.n_attributes)
         self.sampler = GumbelSampler(**kwargs)
@@ -71,7 +68,7 @@ class GDINA(pl.LightningModule):
     def forward(self, X):
         logits = self.encoder(X)
 
-        logits = logits.reshape((logits.shape[0], logits.shape[1] // 2, 2)).exp()
+        logits = torch.nn.functional.softplus(logits.reshape((logits.shape[0], logits.shape[1] // 2, 2)))
         #logits = (logits - logits.max(dim=-1, keepdim=True).values).exp()  # Subtract max for stability
 
 
@@ -113,6 +110,11 @@ class GDINA(pl.LightningModule):
             weight = 1
         elif kl_type=='concrete':
             # prior probability of samples p(z)
+
+            #print(f'min {torch.min(z)}')
+            #print(f'max {torch.max(z)}')
+            z = torch.clamp(z, min=1e-8)  # Ensure strictly positive
+            z = z / z.sum(-1, keepdim=True)  # Re-normalize for numerical safety
             log_p_theta = dist.RelaxedOneHotCategorical(torch.Tensor([self.sampler.temperature]),
                                                         probs=torch.ones_like(pi)).log_prob(z).sum(-1)
             # posterior probability of the samples p(z|x)
@@ -205,8 +207,10 @@ class GDINA(pl.LightningModule):
         delta = self.decoder.constrain_delta(delta)
 
 
-        log_likelihood = torch.sum(data * torch.log(pi_att @ delta.T + 1e-10) +
-                                   (1 - data) * torch.log(1 - pi_att @ delta.T + 1e-10))
+        log_likelihood = torch.sum(data * torch.log(pi_att @ delta.T + 1e-6) +
+                                   (1 - data) * torch.log(1 - (pi_att @ delta.T - 1e-6)))
+
+        print(log_likelihood)
 
 
         delta = delta.unsqueeze(1)

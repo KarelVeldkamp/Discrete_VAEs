@@ -195,12 +195,16 @@ class LCA(pl.LightningModule):
 
                 z = torch.clamp(z, min=1e-8)  # Ensure strictly positive
                 z = z / z.sum(-1, keepdim=True)  # Re-normalize for numerical safety
-
+                #print("Min/Max of pi:", pi.min().item(), pi.max().item())
+                #print("Min/Max of z:", z.min().item(), z.max().item())
                 log_p_theta = dist.RelaxedOneHotCategorical(torch.Tensor([self.sampler.temperature]),
                                                             probs=unif_probs).log_prob(z).sum(-1, keepdim=True)
 
                 log_q_theta_x = dist.RelaxedOneHotCategorical(torch.Tensor([self.sampler.temperature]),
                                                               probs=pi.detach()).log_prob(z).sum(-1, keepdim=True)
+
+
+
 
                 kl = (log_q_theta_x - log_p_theta)  # kl divergence
 
@@ -282,8 +286,8 @@ class LCA(pl.LightningModule):
             embs = self.sampler.embeddings.weight
             est_probs = self.decoder(embs).T 
 
-        log_likelihood = torch.sum(data * torch.log(pi@est_probs.T + 1e-10) +
-                                (1 - data) * torch.log(1 - pi@est_probs.T + 1e-10))
+        log_likelihood = torch.sum(data * torch.log(pi@est_probs.T + 1e-6) +
+                                (1 - data) * torch.log(1 - pi@est_probs.T + 1e-6))
 
         est_probs = est_probs.unsqueeze(1)
         return pi, None, est_probs, log_likelihood
