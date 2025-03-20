@@ -165,10 +165,9 @@ class VAE(pl.LightningModule):
         #
         #cl = cl / cl.sum(dim=-1, keepdim=True)
 
-        cl = torch.clamp(cl, min=1e-8)  # Ensure strictly positive
+        cl = torch.clamp(cl, min=1e-6, max=1-1e-6)  # Ensure strictly positive
         cl = cl / cl.sum(-1, keepdim=True)  # Re-normalize for numerical safety
 
-        #print(torch.max())
 
         # calculate normal KL divergence
         log_q_theta_x = torch.distributions.Normal(mu.detach(), sigma.exp().detach()+ 1e-7).log_prob(z).sum(dim = -1, keepdim = True) # log q(Theta|X)
@@ -184,12 +183,12 @@ class VAE(pl.LightningModule):
                                                     probs=unif_probs).log_prob(cl).unsqueeze(-1)
 
         log_q_cl_x = torch.distributions.RelaxedOneHotCategorical(torch.Tensor([self.GumbelSoftmax.temperature]).to(pi),
-                                                      probs=pi).log_prob(cl).unsqueeze(-1)
+                                                      probs=pi.detach()).log_prob(cl).unsqueeze(-1)
 
         kl_concrete = (log_q_cl_x - log_p_cl)
 
         # combine into ELBO
-        elbo = logll - kl_normal #- kl_concrete
+        elbo = logll - kl_normal  - kl_concrete
 
 
         # # perform importance weighting
