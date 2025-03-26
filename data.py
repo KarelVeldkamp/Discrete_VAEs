@@ -29,16 +29,17 @@ def parse_arguments(args, cfg):
     cfg['OptimConfigs']['n_iw_samples'] = int(args[3])
     cfg['OptimConfigs']['learning_rate'] = float(args[4])
     cfg['OptimConfigs']['gumbel_decay'] = float(args[5])
-    cfg['SimConfigs']['n_items'] = int(args[6])
+    cfg['OptimConfigs']['gumbel_min_temp'] = float(args[6])
+    cfg['SimConfigs']['n_items'] = int(args[7])
 
     # model specifc arguments
     if cfg['GeneralConfigs']['model'] == 'LCA':
-        cfg['ModelSpecificConfigs']['n_class'] = int(args[7])
-        cfg['ModelSpecificConfigs']['lca_method'] = args[8]
+        cfg['ModelSpecificConfigs']['n_class'] = int(args[8])
+        cfg['ModelSpecificConfigs']['lca_method'] = args[9]
     if cfg['GeneralConfigs']['model'] == 'GDINA':
-        cfg['ModelSpecificConfigs']['n_attributes'] = int(args[7])
+        cfg['ModelSpecificConfigs']['n_attributes'] = int(args[8])
     if cfg['GeneralConfigs']['model'] == 'MIXIRT':
-        cfg['ModelSpecificConfigs']['mirt_dim'] = int(args[7])
+        cfg['ModelSpecificConfigs']['mirt_dim'] = int(args[8])
 
 
 
