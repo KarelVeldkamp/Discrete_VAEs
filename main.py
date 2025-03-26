@@ -84,8 +84,6 @@ test_loader = DataLoader(dataset, batch_size=data.shape[0], shuffle=False)
 # empty logs
 #empty_directory('./logs/')
 
-
-
 # repeat the enitre training process n_rep times
 best_ll = -float('inf')
 for i in range(cfg['OptimConfigs']['n_rep']):
@@ -235,8 +233,8 @@ print(f'mse itempars: {mse_itempars}')
 
 
 # plotting
-empty_directory('./figures/')
 if cfg['GeneralConfigs']['save_plot']:
+    empty_directory('./figures/')
     # save recovery plot of item parameters
     recovery_plot(true=true_itempars[true_itempars!=0],
                   est=best_itempars.detach().numpy()[true_itempars!=0],
