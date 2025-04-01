@@ -1,0 +1,52 @@
+TITLE: mixture IRT
+DATA:	 FILE IS mix_sim.dat;
+VARIABLE:	 NAMES ARE y1-y110;
+
+CATEGORICAL ARE y1-y110;
+MISSING ARE ALL(-999);
+
+CLASSES = c(2);
+ANALYSIS:	 	TYPE = MIXTURE;
+    	 		STARTS = 0;
+ALGORITHM=INTEGRATION;
+INTEGRATION=MONTECARLO (5000);
+
+  MODEL:
+  %OVERALL%
+f1 by y1-y20*;
+f2 by y10-y30*;
+f3 by y20-y40*;
+f4 by y30-y50*;
+f5 by y40-y60*;
+f6 by y50-y70*;
+f7 by y60-y80*;
+f8 by y70-y90*;
+f9 by y80-y100*;
+f10 by y90-y110*;
+
+f1@1;
+f2@1;
+f3@1;
+f4@1;
+f5@1;
+f6@1;
+f7@1;
+f8@1;
+f9@1;
+f10@1;
+
+f1-f10 WITH f1-f10;
+
+%c#1%
+[y1$1-y110$1];
+[f1@0];
+f1@1;
+
+%c#2%
+[y1$1-y110$1];
+[f1@0];
+f1@1;
+
+SAVEDATA: FILE IS FS.sav;
+SAVE IS fscores, cprobabilities;
+FORMAT IS free;

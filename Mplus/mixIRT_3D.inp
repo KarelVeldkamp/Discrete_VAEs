@@ -1,0 +1,39 @@
+TITLE: mixture IRT
+DATA:	 FILE IS ./Mplus/mix_sim.dat;
+VARIABLE:	 NAMES ARE y1-y28;
+
+CATEGORICAL ARE y1-y28;
+MISSING ARE ALL(-999);
+
+CLASSES = c(2);
+ANALYSIS:	 	TYPE = MIXTURE;
+    	 		STARTS = 0;
+ALGORITHM=INTEGRATION ;
+INTEGRATION=10;
+  MODEL:
+  %OVERALL%
+f1 by y1, y3, y7, y10-y14,y16, y20, y21, y25, y27*;
+f2 by y1, y2, y8, y17, y23, y24*;
+f3 by y3-y7, y9, y11, y12, y15-y22, y26, y28*;
+
+f1@1;
+f2@1;
+f3@1;
+
+f1 with f2;
+f2 with f3;
+f1 with f3;
+
+%c#1%
+[y1$1-y28$1];
+[f1-f3@0];
+f1-f3@1;
+
+%c#2%
+[y1$1-y28$1];
+[f1-f3@0];
+f1-f3@1;
+
+SAVEDATA: FILE IS ./Mplus/FS.sav;
+SAVE IS fscores, cprobabilities;
+FORMAT IS free;

@@ -21,6 +21,7 @@ class GDINADecoder(pl.LightningModule):
         self.Q.requires_grad = False
         self.mask = self.Q != 0
 
+
         self.delta = torch.randn(self.Q.shape[0], self.Q.shape[1], requires_grad=True)
 
 
@@ -272,9 +273,11 @@ def sim_gdina_pars(N, nitems, nattributes):
 
     delta = torch.rand(nitems, neffects)
     delta *= expand_interactions(torch.Tensor(Q)).squeeze()
+    #intercepts = torch.rand(nitems) * 0.2
     delta /= (delta.sum(axis=1, keepdims=True) + 1e-4)
 
     intercepts = np.zeros(nitems)
+
     delta = np.column_stack((intercepts, delta))
 
     return att, delta

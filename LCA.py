@@ -116,6 +116,7 @@ class LCA(pl.LightningModule):
             self.latent_dims = kwargs.get('emb_dim', None)
         else:
             self.latent_dims = kwargs.get('nclass')
+
         self.encoder = Encoder(nitems,
                                self.latent_dims,
                                hidden_layer_size
@@ -203,18 +204,16 @@ class LCA(pl.LightningModule):
                                                               probs=pi.detach()).log_prob(z).sum(-1, keepdim=True)
 
 
-
                 kl = (log_q_theta_x - log_p_theta)  # kl divergence
 
                 # combine into ELBO
-
                 elbo = lll - kl
-
 
                 with torch.no_grad():
                     weight = (elbo - elbo.logsumexp(dim=0)).exp()
                     if z.requires_grad:
                         z.register_hook(lambda grad: (weight.unsqueeze(-1) * grad).float())
+
 
 
                 loss = (-weight * elbo).sum(0).mean()

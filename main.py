@@ -162,7 +162,7 @@ for i in range(cfg['OptimConfigs']['n_rep']):
     trainer.fit(model)
     runtime = time.time() - start
     print(f'runtime: {runtime}')
-    #print(f'final temperature: {model.sampler.temperature}')
+    print(f'final temperature: {model.sampler.temperature}')
 
     # check if the model fit is better than previous repetitions
     pi, theta, itempars, ll = model.compute_parameters(data)
