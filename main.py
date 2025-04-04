@@ -162,7 +162,7 @@ for i in range(cfg['OptimConfigs']['n_rep']):
     trainer.fit(model)
     runtime = time.time() - start
     print(f'runtime: {runtime}')
-    print(f'final temperature: {model.sampler.temperature}')
+    #print(f'final temperature: {model.sampler.temperature}')
 
     # check if the model fit is better than previous repetitions
     pi, theta, itempars, ll = model.compute_parameters(data)
@@ -228,8 +228,18 @@ mse_itempars = MSE(best_itempars.detach().numpy()[true_itempars!=0], true_itempa
 bias_itempars = np.mean(best_itempars.detach().numpy()[true_itempars!=0] - true_itempars[true_itempars!=0])
 var_itempars = np.var(best_itempars.detach().numpy()[true_itempars!=0])
 
-print(f'lc acc: {lc_acc}')
-print(f'mse itempars: {mse_itempars}')
+# save MSE for a and b separately in the MIXIRt model
+if cfg['GeneralConfigs']['model'] == 'MIXIRT':
+    best_a = best_itempars[:,0,:]
+    true_a = true_itempars[:,0,:]
+    best_b = best_itempars[:,1:,:]
+    true_b = true_itempars[:, 1:, :]
+    msea = MSE(best_a.detach().numpy()[true_a!=0], true_a[true_a!=0])
+    biasa = np.mean(best_a.detach().numpy()[true_a!=0]- true_a[true_a!=0])
+    mseb = MSE(best_b.detach().numpy(), true_b)
+    biasb = np.mean(best_b.detach().numpy()-true_b)
+else:
+    msea = biasa = mseb = biasb = None
 
 
 # plotting
@@ -282,7 +292,7 @@ if cfg['GeneralConfigs']['save_parameter_estimates']:
     result = pd.DataFrame({'parameter': par, 'i': par_i, 'j': par_j, 'value': value})
     result.to_csv(f"./results/estimates/estimates_{'_'.join(sys.argv[1:])}.csv", index=False)
 if cfg['GeneralConfigs']['save_metrics']:
-    metrics = [lc_acc, mse_itempars, mse_theta, var_itempars, var_theta, bias_itempars, bias_theta, runtime]
+    metrics = [lc_acc, mse_itempars, mse_theta, var_itempars, var_theta, bias_itempars, bias_theta, runtime, mseb, msea, biasb, biasa]
     with open(f"./results/metrics/metrics_{'_'.join(sys.argv[1:])}.csv", 'w') as f:
         for metric in metrics:
             f.write(f"{metric}\n")
