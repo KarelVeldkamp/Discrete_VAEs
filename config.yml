@@ -2,13 +2,13 @@ Configs:
   GeneralConfigs:
     model: MIXIRT   # GDINA, LCA, or MIXIRT
     repetition : 1 # determines where data_pars is saved and/or which data_pars is loaded
-    save_plot: True # whether to save a recovery plot
-    separate_plots: True # whether to save additional plots for each class/effect
+    save_plot: False # whether to save a recovery plot
+    separate_plots: False # whether to save additional plots for each class/effect
     save_metrics: True
     save_parameter_estimates: True
   SimConfigs:
     N: 10000
-    n_items: 100
+    n_items: 28
     sim_pars: False
     sim_data: False  # whether to simulate data_pars or load it from data_pars folder
     save_data_pars: False   # whether to save the data_pars to disk
@@ -24,7 +24,7 @@ Configs:
     gumbel_temperature: 1
     gumbel_decay: .9
     gumbel_min_temp: 0.01
-    n_iw_samples: 1
+    n_iw_samples: 10
     n_rep: 1 # number of times to fit the model with different starting values
     accelerator: 'cpu' # cpu or mps
   ModelSpecificConfigs:

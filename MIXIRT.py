@@ -210,7 +210,7 @@ class VAE(pl.LightningModule):
     def fscores(self, batch, n_mc_samples=50):
         data = batch
 
-        if self.n_samples == 1:
+        if self.n_samples == 10:
             latent_vector = self.encoder(data)
             mu = latent_vector[:, 0:self.latent_dims]
             log_sigma = latent_vector[:, self.latent_dims:(self.latent_dims * 2)]
