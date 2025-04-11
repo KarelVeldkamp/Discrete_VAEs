@@ -3,11 +3,11 @@ library(MASS)
 library(abind)
 
 # read command line arguments
-args = commandArgs(trailingOnly = FALSE)
+#args = commandArgs(trailingOnly = FALSE)
 MIRT_DIM = 3
 NITEMS = ifelse(MIRT_DIM==3, 28, 110)
-replication =1
 
+setwd(getSrcDirectory(function(){})[1])
 for (replication in 76:100){
   for (nrep in c(1,5)){
     print(paste(c('replication', replication)))
