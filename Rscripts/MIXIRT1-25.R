@@ -1,12 +1,13 @@
 library(MplusAutomation)
 library(MASS)
 library(abind)
-
+library(reticulate)
 # read command line arguments
 args = commandArgs(trailingOnly = FALSE)
 MIRT_DIM = 3
 NITEMS = ifelse(MIRT_DIM==3, 28, 110)
 replication =1
+np <- import('numpy')
 
 for (replication in 1:25){
   for (nrep in c(1,5)){
