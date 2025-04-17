@@ -94,7 +94,7 @@ print(runtime)
 
 
 
-delta_est = coef(mod1, what='delta', simplify=T)
+delta_est = coef(best_model, what='delta', simplify=T)
 delta_est_mat = expand_interactions(Q)
 #delta_est_mat[,c(3,4)] = delta_est_mat[,c(4,3)]
 for (item in 1:length(delta_est)){
@@ -107,7 +107,7 @@ intercepts_est = as.vector(sapply(delta_est, function(x) x["d0"]))
 itempars_est = cbind(intercepts_est, delta_est_mat)
 
 mse_delta = mean((true_itempars[true_itempars!=0] - itempars_est[true_itempars!=0])^2)
-att_est = personparm(mod1)
+att_est = personparm(best_model)
 
 
 acc = mean(att_est==true_att)
@@ -125,7 +125,7 @@ value = c()
 par_i = c()
 par_j = c()
 
-class_prob = personparm(mod1, what='mp')
+class_prob = personparm(best_model, what='mp')
 itempars_est = array(t(itempars_est), dim = c(NITEMS,1,ncol(true_itempars)))
 estimates = list(class_prob, itempars_est)
 par_names = c('class', 'itempars')
