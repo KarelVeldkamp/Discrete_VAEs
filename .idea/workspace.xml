@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1afaf8ee-2420-408e-b48a-692cb232e8d7" name="Changes" comment="" />
+    <list default="true" id="1afaf8ee-2420-408e-b48a-692cb232e8d7" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mplus/FS.sav" beforeDir="false" afterPath="$PROJECT_DIR$/Mplus/FS.sav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mplus/mix_sim.dat" beforeDir="false" afterPath="$PROJECT_DIR$/Mplus/mix_sim.dat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rscripts/GDINA.R" beforeDir="false" afterPath="$PROJECT_DIR$/Rscripts/GDINA.R" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mixIRT_3D_1START.out" beforeDir="false" afterPath="$PROJECT_DIR$/mixIRT_3D_1START.out" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

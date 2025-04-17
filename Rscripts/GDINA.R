@@ -74,8 +74,25 @@ Q = true_delta != 0
 Q = reverse_expand_interactions(Q, NATTRIBUTES)
 
 t1 = Sys.time()
-mod1 <- GDINA(dat = data, Q = Q, model = "GDINA", att.dist = 'independent')
+best_ll = -Inf
+for (start in 1:5){
+  set.seed(start)
+  model <- GDINA(dat = data, 
+                 Q = Q, 
+                 model = "GDINA", 
+                 att.dist = 'independent', 
+                 control = list('randomseed'=start)
+                 )
+  ll <- logLik(model)[1]
+  print(ll)
+  if (ll > best_ll){
+    best_model = model
+  }
+}
 runtime = runtime = as.numeric(Sys.time()-t1,units="secs")
+print(runtime)
+
+
 
 delta_est = coef(mod1, what='delta', simplify=T)
 delta_est_mat = expand_interactions(Q)
