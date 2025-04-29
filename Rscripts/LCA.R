@@ -14,10 +14,10 @@ script_dir <- dirname(script_path)
 parent_dir <- dirname(script_dir)
 setwd(parent_dir)
 
-NCLASS = as.numeric(args[6])
-replication = args[7]
-NITEMS = as.numeric(args[8])
-NREP=1
+NCLASS = as.numeric(args[1])
+replication = args[2]
+NITEMS = as.numeric(args[3])
+NREP=as.numeric(args[4])
 
 data = np$load(path.expand(paste0(c('./saved_data/LCA/data/', NCLASS, '_', NITEMS, '_', replication, '.npy'), collapse = ''))) +1
 true_class = np$load(path.expand(paste0(c('./saved_data/LCA/class/', NCLASS, '_', NITEMS,'.npy'), collapse = '')))
@@ -90,13 +90,13 @@ results = data.frame('model'='LCA',
 
 # write estimates to file
 
-print(paste0(c('./results/estimates/mmlestimates_LCA_', NCLASS, '_', replication, '_', NITEMS, '.csv'), collapse=''))
-write.csv(results, paste0(c('./results/estimates/mmlestimates_LCA_', NCLASS, '_', replication, '_', NITEMS, '.csv'), collapse=''))
+print(paste0(c('./results/estimates/mmlestimates_LCA_', NCLASS, '_', replication, '_', NITEMS, '_', NREP,'.csv'), collapse=''))
+write.csv(results, paste0(c('./results/estimates/mmlestimates_LCA_', NCLASS, '_', replication, '_', NITEMS, '_', NREP, '.csv'), collapse=''))
 
 # write metrics to file
 
 metrics = c(as.character(acc), as.character(mse_itempars), as.character(mse_theta), as.character(var_itempars), as.character(var_theta),
             as.character(bias_itempars), as.character(bias_theta), as.character(runtime))
-fileConn<-file(paste0(c('./results/metrics/mmlmetrics_LCA_', NCLASS, '_', replication, '_', NITEMS, '.txt'), collapse=''))
+fileConn<-file(paste0(c('./results/metrics/mmlmetrics_LCA_', NCLASS, '_', replication, '_', NITEMS,'_', NREP, '.txt'), collapse=''))
 writeLines(metrics ,fileConn)
 close(fileConn)
