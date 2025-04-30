@@ -5,7 +5,7 @@ np <- import("numpy")
 # data reading
 
 # read command line arguments
-args = commandArgs(trailingOnly = FALSE)
+args = commandArgs(trailingOnly = T)
 
 # set working directory to the directory above
 filename = strsplit(args[grep("--file=", commandArgs(trailingOnly = FALSE))], '=')[[1]][2]
