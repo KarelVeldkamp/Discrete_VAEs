@@ -31,7 +31,7 @@ with open("./config.yml", "r") as f:
 
 # if command line arguments are provided, use these to overwrite configurations
 if len(sys.argv) > 1:
-    cfg = parse_arguments(sys.argv[1:], cfg)
+    cfg = parse_arguments(sys.argv, cfg)
 
 # simulate data_pars
 if cfg['SimConfigs']['sim_data']:

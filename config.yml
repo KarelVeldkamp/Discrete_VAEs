@@ -11,7 +11,7 @@ Configs:
     n_items: 28
     sim_pars: False
     sim_data: False  # whether to simulate data_pars or load it from data_pars folder
-    save_data_pars: False   # whether to save the data_pars to disk
+    save_data_pars: True   # whether to save the data_pars to disk
   OptimConfigs:
     learning_rate: 0.01
     single_epoch_test_run: False

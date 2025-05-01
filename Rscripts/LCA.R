@@ -5,7 +5,7 @@ np <- import("numpy")
 # data reading
 
 # read command line arguments
-args = commandArgs(trailingOnly = T)
+args = commandArgs(trailingOnly = FALSE)
 
 # set working directory to the directory above
 filename = strsplit(args[grep("--file=", commandArgs(trailingOnly = FALSE))], '=')[[1]][2]
@@ -14,10 +14,10 @@ script_dir <- dirname(script_path)
 parent_dir <- dirname(script_dir)
 setwd(parent_dir)
 
-NCLASS = as.numeric(args[1])
-replication = args[2]
-NITEMS = as.numeric(args[3])
-NREP=as.numeric(args[4])
+NCLASS = as.numeric(args[6])
+replication = args[7]
+NITEMS = as.numeric(args[8])
+NREP=as.numeric(args[9])
 
 data = np$load(path.expand(paste0(c('./saved_data/LCA/data/', NCLASS, '_', NITEMS, '_', replication, '.npy'), collapse = ''))) +1
 true_class = np$load(path.expand(paste0(c('./saved_data/LCA/class/', NCLASS, '_', NITEMS,'.npy'), collapse = '')))
