@@ -357,7 +357,7 @@ def sim_lca_pars(N, nitems, nclass):
         #indices = np.random.choice(nitems, num_ones, replace=False)
 
         # Set the selected indices to one
-        cond_probs[:, i] += np.random.uniform(.2 .2, nitems)
+        cond_probs[:, i] += np.random.uniform(.2, .2, nitems)
 
     # generate uniform class probabilities #TODO allow for diferent distribtion of class probabilities
     class_probs = np.ones(nclass) / nclass
