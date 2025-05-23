@@ -257,15 +257,18 @@ def expand_interactions(attributes):
 
 def sim_gdina_pars(N, nitems, nattributes):
     neffects = 2 ** nattributes - 1
-    Q = torch.zeros((nitems, nattributes))
+    Q_start = torch.eye(nattributes)  # make sure each attribute has at least one unique item
+    Q_rest = torch.zeros((nitems - nattributes, nattributes))
+    # Q = torch.zeros((nitems, nattributes))
 
     valid_Q = False
     while not valid_Q:
-        for item in range(nitems):
-            n_attr_it = torch.randint(1, min(nattributes, 6) + 1, (1,)).item()
+        for item in range(nitems - nattributes):
+            n_attr_it = torch.randint(1, min(nattributes, 3) + 1, (1,)).item()
             atts = torch.randperm(nattributes)[:(n_attr_it)]
-            Q[item, atts] = 1
-        if torch.all(Q.sum(dim=0) > 1):
+            Q_rest[item, atts] = 1
+            Q = torch.cat((Q_start, Q_rest), dim=0)
+        if torch.all(Q.sum(dim=0) >= 3):
             valid_Q = True
 
     att = torch.bernoulli(torch.full((N, nattributes), 0.5))
