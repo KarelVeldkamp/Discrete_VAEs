@@ -351,13 +351,14 @@ def sim_lca_pars(N, nitems, nclass):
     cond_probs = np.expand_dims(np.random.uniform(.3, .7, nitems), -1).repeat(nclass, -1)
     # Iterate over each row
     for i in range(nclass):
-        # Randomly choose the number of entries to set to one
-        #num_ones = int(nitems * 0.3)
+        # Randomly choose the number of entries to set to one between 50 and 100
+        num_ones = nitems  # np.random.randint(50, 80)
+
         # Randomly select num_ones indices to set to one
-        #indices = np.random.choice(nitems, num_ones, replace=False)
+        indices = np.random.choice(nitems, num_ones, replace=False)
 
         # Set the selected indices to one
-        cond_probs[:, i] += np.random.uniform(-.2, .2, nitems)
+        cond_probs[indices, i] += np.random.uniform(-.3, .3, num_ones)  # += .20#
 
     # generate uniform class probabilities #TODO allow for diferent distribtion of class probabilities
     class_probs = np.ones(nclass) / nclass
