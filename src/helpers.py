@@ -67,7 +67,7 @@ def recovery_plot(true, est, name):
     plt.title(f'Probability estimation plot:, MSE={round(mse, 4)}')
     plt.xlabel('True values')
     plt.ylabel('Estimates')
-    plt.savefig(f'./figures/{name}.png')
+    plt.savefig(f'../figures/{name}.png')
 
     return None
 

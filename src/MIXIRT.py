@@ -77,7 +77,7 @@ class VAE(pl.LightningModule):
         :param qm: IxD Q-matrix specifying which items i<I load on which dimensions d<D
         """
         super(VAE, self).__init__()
-        assert (nclass == 2 or nclass ==1), 'mixture only implemented for one or two classes'
+        assert (nclass == 2 or nclass ==1), 'mixture has only been tested for one or two classes'
         #self.automatic_optimization = False
         self.nitems = nitems
         self.dataloader = dataloader

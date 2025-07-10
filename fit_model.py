@@ -1,4 +1,5 @@
 import sys
+sys.path.append('./src/')
 from LCA import *
 from GDINA import *
 from MIXIRT import *
@@ -12,8 +13,9 @@ import time
 import pandas as pd
 
 
+
 # read in configurations
-with open("configs/simfitconfig.yml", "r") as f:
+with open("configs/fitconfig.yml", "r") as f:
     cfg = yaml.safe_load(f)
     cfg = cfg['Configs']
 

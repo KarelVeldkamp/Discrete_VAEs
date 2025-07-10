@@ -25,7 +25,7 @@ dname = os.path.dirname(abspath)
 os.chdir(dname)
 
 # read in configurations
-with open("configs/simfitconfig.yml", "r") as f:
+with open("../configs/simfitconfig.yml", "r") as f:
     cfg = yaml.safe_load(f)
     cfg = cfg['Configs']
 
@@ -52,7 +52,7 @@ if cfg['SimConfigs']['sim_data']:
         true_theta = None
     elif cfg['GeneralConfigs']['model'] == 'MIXIRT':
         if cfg['ModelSpecificConfigs']['mirt_dim'] > 1:
-            Q = pd.read_csv(f'./Qmatrices/QMatrix{cfg["ModelSpecificConfigs"]["mirt_dim"]}D.csv', header=None).values.astype(float)
+            Q = pd.read_csv(f'../Qmatrices/QMatrix{cfg["ModelSpecificConfigs"]["mirt_dim"]}D.csv', header=None).values.astype(float)
         else:
             Q = np.ones((cfg['SimConfigs']['n_items'], cfg['ModelSpecificConfigs']['mirt_dim']))
 
@@ -88,7 +88,7 @@ test_loader = DataLoader(dataset, batch_size=data.shape[0], shuffle=False)
 best_ll = -float('inf')
 for i in range(cfg['OptimConfigs']['n_rep']):
     # initialize logger and trainer
-    logger = CSVLogger("logs", name='_'.join(sys.argv), version=0)
+    logger = CSVLogger("../logs", name='_'.join(sys.argv[1:]), version=0)
     trainer = Trainer(fast_dev_run=cfg['OptimConfigs']['single_epoch_test_run'],
                       max_epochs=cfg['OptimConfigs']['max_epochs'],
                       min_epochs=cfg['OptimConfigs']['min_epochs'],
@@ -245,7 +245,7 @@ else:
 
 # plotting
 if cfg['GeneralConfigs']['save_plot']:
-    empty_directory('./figures/')
+    empty_directory('../figures/')
     # save recovery plot of item parameters
     recovery_plot(true=true_itempars[true_itempars!=0],
                   est=best_itempars.detach().numpy()[true_itempars!=0],
@@ -267,13 +267,13 @@ if cfg['GeneralConfigs']['save_plot']:
                               name=f'Itemparameter_recovery_class{cl+1}_dim{dim+1}')
 
     # read the logs and remove them after (we only save the plot)
-    logs = pd.read_csv(f'logs/{"_".join(sys.argv)}/version_0/metrics.csv')
-    shutil.rmtree(f'logs/{"_".join(sys.argv)}/')
+    logs = pd.read_csv(f'../logs/{"_".join(sys.argv[1:])}/version_0/metrics.csv')
+    shutil.rmtree(f'../logs/{"_".join(sys.argv[1:])}/')
 
     plt.figure()
     plt.plot(logs['epoch'], logs['train_loss'])
     plt.title('Training loss')
-    plt.savefig(f'./figures/training_loss.png')
+    plt.savefig(f'../figures/training_loss.png')
 if cfg['GeneralConfigs']['save_parameter_estimates']:
     par_names = ['class', 'itempars', 'theta']
 
@@ -291,10 +291,10 @@ if cfg['GeneralConfigs']['save_parameter_estimates']:
                     par_j.append(c)
 
     result = pd.DataFrame({'parameter': par, 'i': par_i, 'j': par_j, 'value': value})
-    result.to_csv(f"./results/estimates/estimates_{'_'.join(sys.argv[1:])}.csv", index=False)
+    result.to_csv(f"../results/estimates/estimates_{'_'.join(sys.argv[1:])}.csv", index=False)
 if cfg['GeneralConfigs']['save_metrics']:
     metrics = [lc_acc, mse_itempars, mse_theta, var_itempars, var_theta, bias_itempars, bias_theta, runtime, mseb, msea, biasb, biasa]
-    with open(f"./results/metrics/metrics_{'_'.join(sys.argv[1:])}.csv", 'w') as f:
+    with open(f"../results/metrics/metrics_{'_'.join(sys.argv[1:])}.csv", 'w') as f:
         for metric in metrics:
             f.write(f"{metric}\n")
 

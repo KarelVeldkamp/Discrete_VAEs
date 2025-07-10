@@ -5,8 +5,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1afaf8ee-2420-408e-b48a-692cb232e8d7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/.ipynb_checkpoints/NPI application-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/GDINA.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/LCA.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/MIXIRT.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/NPI application.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/data.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/encoders.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/helpers.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/samplers.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/simfit.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GDINA.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LCA.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MIXIRT.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NPI application.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/configs/simfitconfig.yml" beforeDir="false" afterPath="$PROJECT_DIR$/configs/simfitconfig.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encoders.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fit_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/fit_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helpers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mixirtpars.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/samplers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/simfit.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,7 +109,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="simfit.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/simfit.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -134,15 +157,6 @@
           <url>file://$PROJECT_DIR$/simfit.py</url>
           <line>84</line>
           <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/GDINA.py</url>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/fit_model.py</url>
-          <line>111</line>
-          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
