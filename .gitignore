@@ -13,7 +13,9 @@
 !/results/estimates/.gitkeep
 
 /results/metrics/*
-!/results/matrics/.gitkeep
+!/results/metrics/.gitkeep
 
 /results/NPI results/*
 !/results/NPI results/.gitkeep
+
+.DS_Store
