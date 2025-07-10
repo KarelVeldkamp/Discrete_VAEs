@@ -5,12 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1afaf8ee-2420-408e-b48a-692cb232e8d7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/configs/simfitconfig.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NPI application.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/NPI application.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/configs/fitconfig.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fit_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/fit_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/simfit.py" beforeDir="false" afterPath="$PROJECT_DIR$/simfit.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
