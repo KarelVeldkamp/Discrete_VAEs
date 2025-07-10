@@ -18,7 +18,10 @@ pip3 install -r requirements.txt
 
 ## 🚀 Running the Models
 
-You can fit one of the following models from the command line:
+You can run all three models al follows. Note: the data and Qmatrix should both be .csv files without a header or an index column.
+Both files should contain just zeros and ones. The rows of the Q-matrix should correspond to the columns in the dataset, 
+and the columns of the q matrix respond the the latent dimensions (for MIXIRT) or attributes (for GDINA). No Q-matrix is 
+needed for LCA,
 
 ### ✅ Latent Class Analysis (LCA)
 
