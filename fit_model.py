@@ -13,7 +13,7 @@ import pandas as pd
 
 
 # read in configurations
-with open("./config.yml", "r") as f:
+with open("configs/simfitconfig.yml", "r") as f:
     cfg = yaml.safe_load(f)
     cfg = cfg['Configs']
 
@@ -22,6 +22,7 @@ if len(sys.argv) > 1:
     model_type = sys.argv[1]
     data_path = sys.argv[2]
     nclass = int(sys.argv[3])
+
     if model_type != 'LCA':
         Q_path = sys.argv[4]
 
@@ -32,6 +33,8 @@ if model_type != 'LCA':
     Q = pd.read_csv(Q_path, header=None).values
     if model_type == 'GDINA':
         Q = expand_interactions(torch.Tensor(Q)).squeeze()
+
+
 
 
 dataset = MemoryDataset(data)

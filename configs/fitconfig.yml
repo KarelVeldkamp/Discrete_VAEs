@@ -1,0 +1,19 @@
+Configs:
+  OptimConfigs:
+    learning_rate: 0.01  # ADAM Learning rate
+    single_epoch_test_run: False  # If True, run only a single epoch (useful for debugging)
+    detect_anomaly: False  # If True, enables anomaly detection to trace NaNs/infs in gradients (useful for debugging)
+    max_epochs: 2000  # Maximum number of training epochs
+    min_epochs: 10  # Minimum number of epochs before early stopping can occur
+    min_delta: 0.000000008  # Minimum change in IW-ELBO to qualify as an improvement (used for early stopping)
+    patience: 20  # Number of epochs with no improvement after which training will be stopped
+    batch_size: 1000  # Batch size for training
+    gumbel_temperature: 1  # Initial temperature for Gumbel-softmax
+    gumbel_decay: .9  # Multiplicative decay applied to Gumbel temperature per epoch
+    gumbel_min_temp: 0.01  # Minimum Gumbel-softmax temperature
+    n_iw_samples: 25  # Number of importance-weighted samples
+    n_rep: 1  # Number of model restarts with different random initializations
+    accelerator: 'cpu'  # Device to run training on
+  ModelSpecificConfigs:
+    emb_dim: 5  # Size of latent embeddings (used for VQ-VAE)
+    lca_method: 'gs'  # Latent class estimation method: 'gs' = Gumbel-softmax, 'vq' = Vector Quantization

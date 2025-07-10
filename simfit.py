@@ -25,7 +25,7 @@ dname = os.path.dirname(abspath)
 os.chdir(dname)
 
 # read in configurations
-with open("./config.yml", "r") as f:
+with open("configs/simfitconfig.yml", "r") as f:
     cfg = yaml.safe_load(f)
     cfg = cfg['Configs']
 
