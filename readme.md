@@ -42,7 +42,7 @@ python3 fit_model.py MIXIRT [path_to_data] [number_of_classes] [path_to_q_matrix
 #### 📌 Example
 
 ```bash
-python3 fit_model.py MIXIRT ./data/NPI.csv 7 ./Qmatrices/QmatrixNPI.csv
+python3 fit_model.py MIXIRT ./data/NPI.csv 2 ./Qmatrices/QmatrixNPI.csv
 ```
 
 ## 📁 Output
