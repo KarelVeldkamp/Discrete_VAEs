@@ -1,7 +1,7 @@
 Configs:
   GeneralConfigs:
-    model: MIXIRT   # GDINA, LCA, or MIXIRT
-    repetition : 1 # determines where data_pars is saved and/or which data_pars is loaded
+    model: GDINA   # GDINA, LCA, or MIXIRT (this is overwritten when running fit_model from the command line)
+    repetition : 1
     save_plot: True # whether to save a recovery plot
     separate_plots: False # whether to save additional plots for each class/effect
     save_metrics: True

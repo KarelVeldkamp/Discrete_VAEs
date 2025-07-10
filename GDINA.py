@@ -253,6 +253,8 @@ def expand_interactions(attributes):
     effects = attributes.prod(3)
 
 
+
+
     return effects
 
 def sim_gdina_pars(N, nitems, nattributes):

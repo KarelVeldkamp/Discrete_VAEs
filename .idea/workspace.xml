@@ -5,21 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1afaf8ee-2420-408e-b48a-692cb232e8d7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.ipynb_checkpoints/NPI application-checkpoint.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.ipynb_checkpoints/TIMSS application-checkpoint.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Mplus/mixIRTTIMSS.inp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Mplus/timss.dat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/NPI application.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Qmatrices/QmatrixNPI.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/TIMSS.dat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Discrete_VAEs.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Discrete_VAEs.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Qmatrices/Qmattmp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/NPI.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/test.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit_model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GDINA.py" beforeDir="false" afterPath="$PROJECT_DIR$/GDINA.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MIXIRT.py" beforeDir="false" afterPath="$PROJECT_DIR$/MIXIRT.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Rscripts/GDINA.R" beforeDir="false" afterPath="$PROJECT_DIR$/Rscripts/GDINA.R" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NPI application.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/NPI application.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/TIMSS.dat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/simfit.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mixIRT_3D_1START.out" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,7 +94,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="main.py" />
+      <option name="SCRIPT_NAME" value="simfit.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -143,13 +139,18 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/main.py</url>
+          <url>file://$PROJECT_DIR$/simfit.py</url>
           <line>84</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/GDINA.py</url>
           <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/fit_model.py</url>
+          <line>108</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
