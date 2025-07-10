@@ -156,7 +156,8 @@ for i in range(cfg['OptimConfigs']['n_rep']):
                   temperature=cfg['OptimConfigs']['gumbel_temperature'],
                   temperature_decay=cfg['OptimConfigs']['gumbel_decay'],
                   min_temp=cfg['OptimConfigs']['gumbel_min_temp'],
-                  beta=1)
+                  beta=1,
+                  nclass=1)
 
     start = time.time()
     trainer.fit(model)

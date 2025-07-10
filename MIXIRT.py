@@ -13,7 +13,7 @@ class IRTDecoder(pl.LightningModule):
     Neural network used as decoder
     """
 
-    def __init__(self, nitems: int, latent_dims: int,  qm: torch.Tensor=None):
+    def __init__(self, nitems: int, latent_dims: int,  qm: torch.Tensor=None, nclass=2):
         """
         Initialisation
         :param latent_dims: the number of latent factors
@@ -21,11 +21,11 @@ class IRTDecoder(pl.LightningModule):
         """
         super().__init__()
         # one layer for each class
-        self.weights1 = nn.Parameter(torch.zeros((latent_dims, nitems)))  # Manually created weight matrix
-        self.bias1 = nn.Parameter(torch.zeros(nitems))  # Manually created bias vecto
-        self.weights2 = nn.Parameter(torch.zeros((latent_dims, nitems)))  # Manually created weight matrix
-        self.bias2 = nn.Parameter(torch.zeros(nitems))  # Manually created bias vecto
+        self.weights = nn.Parameter(torch.zeros((latent_dims, nitems)))  # Manually created weight matrix
+
+        self.biases = nn.Parameter(torch.zeros(nclass, nitems))  # shape: [2, nitems]
         self.activation = nn.Sigmoid()
+        self.nclass = nclass
 
         # remove edges between latent dimensions and items that have a zero in the Q-matrix
         if qm is None:
@@ -43,17 +43,10 @@ class IRTDecoder(pl.LightningModule):
         """
 
         #print(cl[:, 0:1])
-        self.qm = self.qm.to(self.weights1)
-        pruned_weights1 = self.weights1 * self.qm
-        pruned_weights2 = self.weights2 * self.qm
+        self.qm = self.qm.to(self.weights)
+        pruned_weights= self.weights * self.qm
 
-        #indices = torch.Tensor([1,2,3,4,5,11,12,13,14,15, 21,22, 23,24,25]).int()
-        bias1 = self.bias1
-        bias2 = self.bias2#1.clone()  # Start with bias1 as the base
-        #bias2[indices] = self.bias2[indices]
-
-        out = (torch.matmul(theta, pruned_weights1) + bias1) * cl[:, :, 0:1] + \
-            (torch.matmul(theta, pruned_weights1) + bias2) * cl[:, :, 1:2]
+        out = torch.matmul(theta, pruned_weights) + torch.matmul(cl, self.biases)
         out = self.activation(out)
         return out
 
@@ -84,7 +77,7 @@ class VAE(pl.LightningModule):
         :param qm: IxD Q-matrix specifying which items i<I load on which dimensions d<D
         """
         super(VAE, self).__init__()
-        assert nclass == 2, 'mixture only implemented for two classes'
+        assert (nclass == 2 or nclass ==1), 'mixture only implemented for one or two classes'
         #self.automatic_optimization = False
         self.nitems = nitems
         self.dataloader = dataloader
@@ -101,7 +94,9 @@ class VAE(pl.LightningModule):
         self.sampler = NormalSampler()
         self.latent_dims = latent_dims
 
-        self.decoder = IRTDecoder(nitems, latent_dims, qm)
+        self.decoder = IRTDecoder(nitems, latent_dims, qm, nclass)
+
+        self.nclass = nclass
 
         self.lr = learning_rate
         self.batch_size = batch_size
@@ -119,7 +114,7 @@ class VAE(pl.LightningModule):
         latent_vector = self.encoder(x)
         mu = latent_vector[:,0:self.latent_dims]
         log_sigma = latent_vector[:,self.latent_dims:(self.latent_dims*2)]
-        cl = latent_vector[:,(self.latent_dims*2):(self.latent_dims*2+2)]
+        cl = latent_vector[:,(self.latent_dims*2):(self.latent_dims*2+self.nclass)]
 
 
         mu = mu.repeat(self.n_samples,1,1)
@@ -201,7 +196,6 @@ class VAE(pl.LightningModule):
                 z.register_hook(lambda grad: (weight * grad).float())
         #
         loss = (-weight * elbo).sum(0).mean()
-
         return loss, weight
 
     def on_train_epoch_end(self):
@@ -210,7 +204,7 @@ class VAE(pl.LightningModule):
     def fscores(self, batch, n_mc_samples=50):
         data = batch
 
-        if self.n_samples == 10:
+        if self.n_samples == 1:
             latent_vector = self.encoder(data)
             mu = latent_vector[:, 0:self.latent_dims]
             log_sigma = latent_vector[:, self.latent_dims:(self.latent_dims * 2)]
@@ -218,9 +212,11 @@ class VAE(pl.LightningModule):
             return mu.unsqueeze(0).detach(), cl.unsqueeze(0).detach()
         else:
             scores = torch.empty((n_mc_samples, data.shape[0], self.latent_dims))
-            classes = torch.empty((n_mc_samples, data.shape[0], 2))
+            classes = torch.empty((n_mc_samples, data.shape[0], self.nclass))
             for i in range(n_mc_samples):
                 reco, mu, log_sigma, z, pi, cl = self(data)
+
+
                 mask = torch.ones_like(data)
                 loss, weight = self.loss(data, reco, mask, mu, log_sigma, z, pi, cl)
 
@@ -239,43 +235,41 @@ class VAE(pl.LightningModule):
 
                 cl_output = torch.gather(cl.transpose(0, 1), 1,
                                       idxs_expanded_cl).squeeze().detach()  # Shape [10000, latent dims]
+
+
                 if self.latent_dims == 1:
                     cl_output = cl_output.unsqueeze(-1)
                     z_output =  z_output.unsqueeze(-1)
 
                 scores[i, :, :] = z_output
+                if cl_output.dim() ==1:
+                    cl_output = cl_output.unsqueeze(-1)
                 classes[i, :, :] = cl_output
 
             return scores, classes
 
     def compute_parameters(self, data):
         data = torch.Tensor(data)
-        a1_est = self.decoder.weights1.detach()
-        a2_est = self.decoder.weights1.detach()
-        d1_est = self.decoder.bias1.detach()
-        d2_est = self.decoder.bias2.detach()
+        a_est = self.decoder.weights.detach()
+        b_est = self.decoder.biases.detach()
+
 
         theta_est, cl_est = self.fscores(data)
         theta_est = theta_est.mean(0)
         cl_est = cl_est.mean(0)
-        #theta_est = latent_samples[:, 0:self.latent_dims]
-        #cl = latent_samples[:, (2*self.latent_dims)+2]
 
 
-        logits = cl_est[:,[0]] * (theta_est @ a1_est + d1_est) + cl_est[:,[1]] * (theta_est @ a2_est + d2_est)
+        logits = torch.matmul(theta_est, a_est) + torch.matmul(cl_est, b_est)
+        # logits = cl_est[:,[0]] * (theta_est @ a_est + d1_est) + cl_est[:,[1]] * (theta_est @ a_est + d2_est)
         probs = F.sigmoid(logits)
         epsilon = 1e-6  # Small constant to avoid log(0)
         probs = torch.clamp(probs, epsilon, 1 - epsilon)
 
         log_likelihood = torch.sum(data * probs.log() + (1-data) * (1-probs).log())
 
-
-        items1 = torch.cat((d1_est.unsqueeze(-1),a1_est.T), -1)
-        items2 = torch.cat((d2_est.unsqueeze(-1),a2_est.T), -1)
-
-
-        itempars = torch.cat((items1.unsqueeze(-1), items2.unsqueeze(-1)), -1)
-
+        a_rep = a_est.T.unsqueeze(-1).expand(-1, -1, self.nclass)  # shape (nitems, ndim, nclass)
+        b_exp = b_est.T.unsqueeze(1)  # shape (nitems, 1, nclass)
+        itempars = torch.cat([b_exp, a_rep], dim=1) # shape (nitems, ndim+1, nclass)
 
         return cl_est, theta_est, itempars, log_likelihood
 

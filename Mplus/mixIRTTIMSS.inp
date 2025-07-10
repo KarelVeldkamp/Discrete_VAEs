@@ -1,0 +1,35 @@
+TITLE: mixture IRT
+DATA:	 FILE IS ./Mplus/timss.dat;
+VARIABLE:	 NAMES ARE y1-y56;
+
+CATEGORICAL ARE y1-y56;
+MISSING ARE ALL(-999);
+
+CLASSES = c(2);
+ANALYSIS:	 	TYPE = MIXTURE;
+    	 		STARTS = 0;
+ALGORITHM=INTEGRATION ;
+INTEGRATION=10;
+  MODEL:
+  %OVERALL%
+f1 by y1-y28*;
+f2 by y29-y56*;
+
+f1@1;
+f2@1;
+
+f1 with f2;
+
+%c#1%
+[y1$1-y56$1];
+[f1-f2@0];
+f1-f2@1;
+
+%c#2%
+[y1$1-y56$1];
+[f1-f2@0];
+f1-f2@1;
+
+SAVEDATA: FILE IS ./Mplus/FS.sav;
+SAVE IS fscores, cprobabilities;
+FORMAT IS free;

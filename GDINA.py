@@ -264,7 +264,7 @@ def sim_gdina_pars(N, nitems, nattributes):
     valid_Q = False
     while not valid_Q:
         for item in range(nitems - nattributes):
-            n_attr_it = torch.randint(1, min(nattributes, 3) + 1, (1,)).item()
+            n_attr_it = torch.randint(1, min(nattributes, 6) + 1, (1,)).item()
             atts = torch.randperm(nattributes)[:(n_attr_it)]
             Q_rest[item, atts] = 1
             Q = torch.cat((Q_start, Q_rest), dim=0)

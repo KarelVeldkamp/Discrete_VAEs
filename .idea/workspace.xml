@@ -5,7 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1afaf8ee-2420-408e-b48a-692cb232e8d7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.ipynb_checkpoints/NPI application-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.ipynb_checkpoints/TIMSS application-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Mplus/mixIRTTIMSS.inp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Mplus/timss.dat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NPI application.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Qmatrices/QmatrixNPI.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/TIMSS.dat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Discrete_VAEs.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Discrete_VAEs.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GDINA.py" beforeDir="false" afterPath="$PROJECT_DIR$/GDINA.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MIXIRT.py" beforeDir="false" afterPath="$PROJECT_DIR$/MIXIRT.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rscripts/GDINA.R" beforeDir="false" afterPath="$PROJECT_DIR$/Rscripts/GDINA.R" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,35 +50,36 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/karel/Documents/GitHub/Discrete_VAEs",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/karel/Documents/GitHub/Discrete_VAEs/Mplus&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Mplus" />
       <recent name="$PROJECT_DIR$/saved_data" />
       <recent name="$PROJECT_DIR$/data_pars/mixirt" />
       <recent name="$PROJECT_DIR$/data_pars/gdina" />
       <recent name="$PROJECT_DIR$/parameters" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/data_pars/lca" />
-      <recent name="$PROJECT_DIR$/" />
       <recent name="$PROJECT_DIR$/.." />
     </key>
   </component>
@@ -79,7 +94,7 @@
       </envs>
       <option name="SDK_HOME" value="/usr/local/bin/python3.13" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
@@ -96,7 +111,6 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-PY-251.25410.159" />
         <option value="bundled-python-sdk-e0ed3721d81e-36ea0e71a18c-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.25410.159" />
       </set>
     </attachedChunks>
@@ -109,7 +123,13 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1739526115627</updated>
-      <workItem from="1747987373910" duration="1473000" />
+      <workItem from="1747987373910" duration="4967000" />
+      <workItem from="1748414680431" duration="14607000" />
+      <workItem from="1749116707406" duration="26579000" />
+      <workItem from="1749646487522" duration="599000" />
+      <workItem from="1750147692131" duration="1668000" />
+      <workItem from="1750667881695" duration="4286000" />
+      <workItem from="1750761002428" duration="10000" />
     </task>
     <servers />
   </component>
@@ -133,5 +153,8 @@
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Discrete_VAEs$main.coverage" NAME="main Coverage Results" MODIFIED="1748008300561" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

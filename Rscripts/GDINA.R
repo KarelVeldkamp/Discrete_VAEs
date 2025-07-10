@@ -1,6 +1,7 @@
 library(reticulate)
 library(GDINA)
 np <- import("numpy")
+NREP=1
 # read command line arguments
 args = commandArgs(trailingOnly = FALSE)
 filename = strsplit(args[grep("--file=", commandArgs(trailingOnly = FALSE))], '=')[[1]][2]
@@ -13,7 +14,7 @@ setwd(parent_dir)
 NATTRIBUTES = as.numeric(args[6])
 replication = as.numeric(args[7])
 NITEMS = as.numeric(args[8])
-NREP = as.numeric(args[9])
+
 expand_interactions <- function(attributes) {
   n_attributes <- ncol(attributes)
   n_effects <- 2^n_attributes - 1
@@ -72,9 +73,30 @@ true_intercepts = true_itempars[,1]
 Q = true_delta != 0
 Q = reverse_expand_interactions(Q, NATTRIBUTES)
 
+
+library(combinat)  # for 'permn'
+
+has_identity <- function(Q) {
+  K <- ncol(Q)
+  identity_found <- FALSE
+  for (rows in combn(nrow(Q), K, simplify = FALSE)) {
+    Q_sub <- Q[rows, ]
+    for (perm in permn(1:K)) {
+      if (all(Q_sub == diag(K)[perm, ])) {
+        identity_found <- TRUE
+        break
+      }
+    }
+    if (identity_found) break
+  }
+  return(identity_found)
+}
+
+has_identity(Q)
+
 t1 = Sys.time()
 best_ll = -Inf
-for (start in 1:NREP){
+for (start in 1:5){
   set.seed(start)
   model <- GDINA(dat = data, 
                  Q = Q, 
@@ -154,13 +176,13 @@ results = data.frame('model'='LCA',
 # write estimates to file
 
 print(paste0(c('./results/estimates/mmlestimates_GDINA_', NATTRIBUTES, '_',replication, '_', NITEMS, '.csv'), collapse=''))
-write.csv(results, paste0(c('./results/estimates/mmlestimates_GDINA_', NATTRIBUTES, '_', replication, '_', NITEMS, '_', NREP, '.csv'), collapse=''))
+write.csv(results, paste0(c('./results/estimates/mmlestimates_GDINA_', NATTRIBUTES, '_', replication, '_', NITEMS, '.csv'), collapse=''))
 
 # write metrics to file
 
 metrics = c(as.character(acc), as.character(mse_itempars), as.character(mse_theta), as.character(var_itempars), as.character(var_theta),
             as.character(bias_itempars), as.character(bias_theta), as.character(runtime))
-fileConn<-file(paste0(c('./results/metrics/mmlmetrics_GDINA_', NATTRIBUTES, '_', replication, '_', NITEMS, '_', NREP, '.txt'), collapse=''))
+fileConn<-file(paste0(c('./results/metrics/mmlmetrics_GDINA_', NATTRIBUTES, '_', replication, '_', NITEMS, '.txt'), collapse=''))
 writeLines(metrics ,fileConn)
 close(fileConn)
 
