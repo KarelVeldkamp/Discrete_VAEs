@@ -1,10 +1,19 @@
+# Ignore everything inside these directories
 /logs/*
-/logs/**
+!/logs/.gitkeep
+
 /figures/*
-/figures/**
+
 /venv/*
-/venv/**
+!/venv/.gitkeep
+
 /saved_data/*
-/saved_data/**
-/results/*
-/results/**
+
+/results/estimates/*
+!/results/estimates/.gitkeep
+
+/results/metrics/*
+!/results/matrics/.gitkeep
+
+/results/NPI results/*
+!/results/NPI results/.gitkeep
