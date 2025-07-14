@@ -1,6 +1,6 @@
 Configs:
   GeneralConfigs:
-    model: MIXIRT   # GDINA, LCA, or MIXIRT (this is overwritten when running fit_model from the command line)
+    model: GDINA   # GDINA, LCA, or MIXIRT (this is overwritten when running fit_model from the command line)
     repetition : 1
     save_plot: True # whether to save a recovery plot
     separate_plots: False # whether to save additional plots for each class/effect
@@ -8,10 +8,10 @@ Configs:
     save_parameter_estimates: True
   SimConfigs:
     N: 10000
-    n_items: 28
-    sim_pars: True
-    sim_data: True  # whether to simulate data_pars or load it from data_pars folder
-    save_data_pars: False   # whether to save the data_pars to disk
+    n_items: 100
+    sim_pars: False
+    sim_data: False  # whether to simulate data_pars or load it from data_pars folder
+    save_data_pars: True   # whether to save the data_pars to disk
   OptimConfigs:
     learning_rate: 0.01
     single_epoch_test_run: False

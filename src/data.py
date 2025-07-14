@@ -57,7 +57,7 @@ def get_paths(cfg):
     pars = ['data','class', 'itempars', 'theta']
 
 
-    base_dir = os.path.abspath('./saved_data')
+    base_dir = os.path.abspath('../saved_data')
     model = cfg['GeneralConfigs']['model']
     paths = [os.path.join(base_dir, model, par, f"{filename}") for par in pars]
 

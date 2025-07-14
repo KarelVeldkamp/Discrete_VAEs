@@ -18,10 +18,8 @@ pip3 install -r requirements.txt
 
 ## 🚀 Running the Models
 
-You can run all three models al follows. Note: the data and Qmatrix should both be .csv files without a header or an index column.
-Both files should contain just zeros and ones. The rows of the Q-matrix should correspond to the columns in the dataset, 
-and the columns of the q matrix respond the the latent dimensions (for MIXIRT) or attributes (for GDINA). No Q-matrix is 
-needed for LCA,
+You can run all three models al follows. 
+Note: the data and Qmatrix should both be .csv files without a header or an index column.
 
 ### ✅ Latent Class Analysis (LCA)
 

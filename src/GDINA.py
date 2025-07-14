@@ -233,12 +233,17 @@ def expand_interactions(attributes):
 
     n_iw_samples = attributes.shape[0]
     n_attributes = attributes.shape[2]
-    n_effects = 2**n_attributes-1
+    total_effects = 2**n_attributes-1
+    n_effects = n_attributes + n_attributes*(n_attributes-1)//2
     batch_size = attributes.shape[1]
 
 
     # Generate SxA matrix where each row represents whether each attribute is needed for each effect
-    required_mask = torch.arange(1, n_effects + 1).unsqueeze(1).bitwise_and(1 << torch.arange(n_attributes)).bool()
+    required_mask = torch.arange(1, total_effects + 1).unsqueeze(1).bitwise_and(1 << torch.arange(n_attributes)).bool()
+
+    required_mask = required_mask[required_mask.sum(-1) <= 2,] # only keep 1st and second order
+
+
 
     # repeat the matrix for each IW sample and each observation
     required_mask = required_mask.repeat((n_iw_samples, batch_size, 1, 1))  # IWxBxSxA
@@ -258,7 +263,7 @@ def expand_interactions(attributes):
     return effects
 
 def sim_gdina_pars(N, nitems, nattributes):
-    neffects = 2 ** nattributes - 1
+    neffects = nattributes + (nattributes*(nattributes-1)) // 2
     Q_start = torch.eye(nattributes)  # make sure each attribute has at least one unique item
     Q_rest = torch.zeros((nitems - nattributes, nattributes))
     # Q = torch.zeros((nitems, nattributes))
@@ -266,7 +271,7 @@ def sim_gdina_pars(N, nitems, nattributes):
     valid_Q = False
     while not valid_Q:
         for item in range(nitems - nattributes):
-            n_attr_it = torch.randint(1, min(nattributes, 6) + 1, (1,)).item()
+            n_attr_it = torch.randint(1, min(nattributes, 3) + 1, (1,)).item()
             atts = torch.randperm(nattributes)[:(n_attr_it)]
             Q_rest[item, atts] = 1
             Q = torch.cat((Q_start, Q_rest), dim=0)
@@ -294,8 +299,8 @@ def sim_GDINA(N, nitems, nattributes, sim_pars):
         # np.save(f'./saved_data/LCA/class/{nattributes}_{nitems}.npy', att)
         # np.save(f'./saved_data/LCA/itempars/{nattributes}_{nitems}.npy', delta)
     else:
-        att = torch.Tensor(np.load(f'./saved_data/GDINA/class/{nattributes}_{nitems}.npy'))
-        delta = torch.Tensor(np.load(f'./saved_data/GDINA/itempars/{nattributes}_{nitems}.npy')).squeeze()
+        att = torch.Tensor(np.load(f'../saved_data/GDINA/class/{nattributes}_{nitems}.npy'))
+        delta = torch.Tensor(np.load(f'../saved_data/GDINA/itempars/{nattributes}_{nitems}.npy')).squeeze()
 
     eff = expand_interactions(att).squeeze()
     eff = torch.column_stack((torch.ones(N), eff))

@@ -14,14 +14,17 @@ setwd(parent_dir)
 NATTRIBUTES = as.numeric(args[6])
 replication = as.numeric(args[7])
 NITEMS = as.numeric(args[8])
+NREP = as.numeric(args[9])
 
 expand_interactions <- function(attributes) {
   n_attributes <- ncol(attributes)
-  n_effects <- 2^n_attributes - 1
+  total_effects <- 2^n_attributes - 1
+  n_effects = n_attributes + n_attributes * (n_attributes-1)/2
   batch_size <- nrow(attributes)
   
   # Generate SxA matrix where each row represents whether each attribute is needed for each effect
-  required_mask <- t(sapply(1:n_effects, function(x) as.integer(intToBits(x)[1:n_attributes])))
+  required_mask <- t(sapply(1:total_effects, function(x) as.integer(intToBits(x)[1:n_attributes])))
+  required_mask = required_mask[rowSums(required_mask) <=2]
   
   # Repeat the matrix for each observation (BxSxA)
   required_mask <- array(rep(required_mask, each = batch_size), dim = c(batch_size, n_effects, n_attributes))
@@ -44,7 +47,7 @@ reverse_expand_interactions <- function(effects, n_attributes) {
   
   # Reconstruct the required_mask
   required_mask <- t(sapply(1:n_effects, function(x) as.integer(intToBits(x)[1:n_attributes])))
-  
+  required_mask = required_mask[rowSums(required_mask) <=2,]
   # Initialize the Q matrix
   Q_matrix <- matrix(0, nrow = batch_size, ncol = n_attributes)
   
@@ -62,9 +65,9 @@ reverse_expand_interactions <- function(effects, n_attributes) {
   return(Q_matrix)
 }
 
-data = np$load(path.expand(paste0(c('./saved_data/GDINA/data/', NATTRIBUTES, '_', NITEMS, '_', replication, '.npy'), collapse = ''))) 
-true_att = np$load(path.expand(paste0(c('./saved_data/GDINA/class/', NATTRIBUTES, '_', NITEMS,'.npy'), collapse = '')))
-true_itempars = np$load(path.expand(paste0(c('./saved_data/GDINA/itempars/', NATTRIBUTES, '_', NITEMS,'.npy'), collapse = '')))
+data = np$load(path.expand(paste0(c('../saved_data/GDINA/data/', NATTRIBUTES, '_', NITEMS, '_', replication, '.npy'), collapse = ''))) 
+true_att = np$load(path.expand(paste0(c('../saved_data/GDINA/class/', NATTRIBUTES, '_', NITEMS,'.npy'), collapse = '')))
+true_itempars = np$load(path.expand(paste0(c('../saved_data/GDINA/itempars/', NATTRIBUTES, '_', NITEMS,'.npy'), collapse = '')))
 true_itempars= matrix(true_itempars, nrow=nrow(true_itempars))
 true_delta = true_itempars[,-1]
 true_intercepts = true_itempars[,1]
@@ -74,35 +77,32 @@ Q = true_delta != 0
 Q = reverse_expand_interactions(Q, NATTRIBUTES)
 
 
+
+design.list <- lapply(1:nrow(Q), function(j) {
+  Qj <- Q[j, ]
+  K <- sum(Qj)
+  dm <- designmatrix(Kj = K, model = "GDINA", Qj = Qj)
+  if (K==3){
+    dm = dm[,1:(ncol(dm)-1)]
+  }
+  return (dm)
+})
+
+
+
 library(combinat)  # for 'permn'
 
-has_identity <- function(Q) {
-  K <- ncol(Q)
-  identity_found <- FALSE
-  for (rows in combn(nrow(Q), K, simplify = FALSE)) {
-    Q_sub <- Q[rows, ]
-    for (perm in permn(1:K)) {
-      if (all(Q_sub == diag(K)[perm, ])) {
-        identity_found <- TRUE
-        break
-      }
-    }
-    if (identity_found) break
-  }
-  return(identity_found)
-}
-
-has_identity(Q)
 
 t1 = Sys.time()
 best_ll = -Inf
-for (start in 1:5){
+for (start in 1:NREP){
   set.seed(start)
   model <- GDINA(dat = data, 
                  Q = Q, 
                  model = "GDINA", 
                  att.dist = 'independent', 
-                 control = list('randomseed'=start)
+                 control = list('randomseed'=start),
+                 design.matrix =design.list
                  )
   ll <- logLik(model)[1]
   print(ll)
@@ -112,7 +112,6 @@ for (start in 1:5){
 }
 runtime = runtime = as.numeric(Sys.time()-t1,units="secs")
 print(runtime)
-
 
 
 delta_est = coef(best_model, what='delta', simplify=T)
@@ -175,14 +174,14 @@ results = data.frame('model'='LCA',
 
 # write estimates to file
 
-print(paste0(c('./results/estimates/mmlestimates_GDINA_', NATTRIBUTES, '_',replication, '_', NITEMS, '.csv'), collapse=''))
-write.csv(results, paste0(c('./results/estimates/mmlestimates_GDINA_', NATTRIBUTES, '_', replication, '_', NITEMS, '.csv'), collapse=''))
+print(paste0(c('./results/estimates/mmlestimates_GDINA_', NATTRIBUTES, '_',replication, '_', NITEMS, '_', NREP, '.csv'), collapse=''))
+write.csv(results, paste0(c('./results/estimates/mmlestimates_GDINA_', NATTRIBUTES, '_', replication, '_', NITEMS,'_', NREP, '.csv'), collapse=''))
 
 # write metrics to file
 
 metrics = c(as.character(acc), as.character(mse_itempars), as.character(mse_theta), as.character(var_itempars), as.character(var_theta),
             as.character(bias_itempars), as.character(bias_theta), as.character(runtime))
-fileConn<-file(paste0(c('./results/metrics/mmlmetrics_GDINA_', NATTRIBUTES, '_', replication, '_', NITEMS, '.txt'), collapse=''))
+fileConn<-file(paste0(c('./results/metrics/mmlmetrics_GDINA_', NATTRIBUTES, '_', replication, '_', NITEMS, '_', NREP, '.txt'), collapse=''))
 writeLines(metrics ,fileConn)
 close(fileConn)
 
