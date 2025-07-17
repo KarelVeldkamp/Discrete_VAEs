@@ -8,9 +8,14 @@ You can easily fit these models to your own data using the `fit_model.py` file.
 
 ## 🔧 Installation
 
+Clone the directory
+```bash
+git clone https://github.com/KarelVeldkamp/Discrete_VAEs/
+```
 Before fitting any models, make sure all dependencies are installed:
 
 ```bash
+cd Discrete_VAEs/
 pip3 install -r requirements.txt
 ```
 
