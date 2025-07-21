@@ -1,6 +1,6 @@
 # Estimating Discrete Latent Variable Models Using Amortized Variational Inference
 
-This repository contains all our code used to estimate **LCA**, **GDINA**, and **Mixture IRT** models using *Amortized Variational Inference*.
+All our code used to estimate **LCA**, **GDINA**, and **Mixture IRT** models using *Amortized Variational Inference* is available in the /src/ directory, and the latent structures used are available in the /Qmatrices/ directory. 
 
 You can easily fit these models to your own data using the `fit_model.py` file.
 
