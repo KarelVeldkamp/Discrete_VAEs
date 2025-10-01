@@ -78,7 +78,7 @@ else:
 #true_itempars = torch.Tensor(true_itempars)
 # intiralize data_pars loader
 dataset = MemoryDataset(data)
-train_loader = DataLoader(dataset, batch_size=cfg['OptimConfigs']['batch_size'], shuffle=True)
+train_loader = DataLoader(dataset, batch_size=cfg['OptimConfigs']['batch_size'], shuffle=False)
 test_loader = DataLoader(dataset, batch_size=data.shape[0], shuffle=False)
 
 # empty logs
@@ -105,60 +105,99 @@ for i in range(cfg['OptimConfigs']['n_rep']):
 
     # fit the model (LCA, GDINA or MIXIRT)
     if cfg['GeneralConfigs']['model'] == 'LCA':
-        if cfg['ModelSpecificConfigs']['lca_method'] in ['dvae', 'gs', 'vq', 'log']:
-            model = LCA(dataloader=train_loader,
-                        nitems=data.shape[1],
-                        nclass=cfg['ModelSpecificConfigs']['n_class'],
-                        hidden_layer_size=(data.shape[1]+cfg['ModelSpecificConfigs']['n_class'])//2,
-                        learning_rate=cfg['OptimConfigs']['learning_rate'],
-                        emb_dim=cfg['ModelSpecificConfigs']['emb_dim'],
-                        temperature=cfg['OptimConfigs']['gumbel_temperature'],
-                        temperature_decay=cfg['OptimConfigs']['gumbel_decay'],
-                        sampler_type=cfg['ModelSpecificConfigs']['lca_method'],
-                        min_temp=cfg['OptimConfigs']['gumbel_min_temp'],
-                        n_iw_samples=cfg['OptimConfigs']['n_iw_samples'],
-                        beta=1)
-        elif cfg['ModelSpecificConfigs']['lca_method'] == 'rbm':
-            nnodes = np.log2(cfg['ModelSpecificConfigs']['n_class'])
-            if not nnodes.is_integer():
-                raise ValueError('RBM only implemented for 2, 4, 8, ... classes')
-            model = RestrictedBoltzmannMachine(
+        if cfg['OptimConfigs']['amortized']:
+            if cfg['ModelSpecificConfigs']['lca_method'] in ['dvae', 'gs', 'vq', 'log']:
+                model = LCA(dataloader=train_loader,
+                            nitems=data.shape[1],
+                            nclass=cfg['ModelSpecificConfigs']['n_class'],
+                            hidden_layer_size=(data.shape[1]+cfg['ModelSpecificConfigs']['n_class'])//2,
+                            learning_rate=cfg['OptimConfigs']['learning_rate'],
+                            emb_dim=cfg['ModelSpecificConfigs']['emb_dim'],
+                            temperature=cfg['OptimConfigs']['gumbel_temperature'],
+                            temperature_decay=cfg['OptimConfigs']['gumbel_decay'],
+                            sampler_type=cfg['ModelSpecificConfigs']['lca_method'],
+                            min_temp=cfg['OptimConfigs']['gumbel_min_temp'],
+                            n_iw_samples=cfg['OptimConfigs']['n_iw_samples'],
+                            beta=1)
+
+            elif cfg['ModelSpecificConfigs']['lca_method'] == 'rbm':
+                nnodes = np.log2(cfg['ModelSpecificConfigs']['n_class'])
+                if not nnodes.is_integer():
+                    raise ValueError('RBM only implemented for 2, 4, 8, ... classes')
+                model = RestrictedBoltzmannMachine(
+                    dataloader=train_loader,
+                    n_visible=data.shape[1],
+                    n_hidden=int(nnodes),
+                    learning_rate=cfg['OptimConfigs']['learning_rate'],
+                    n_gibbs=cfg['ModelSpecificConfigs']['gibbs_samples']
+                )
+            else:
+                raise ValueError('Invalid model type')
+        elif not cfg['OptimConfigs']['amortized']:
+            model = VariationalLCA(
                 dataloader=train_loader,
-                n_visible=data.shape[1],
-                n_hidden=int(nnodes),
-                learning_rate=cfg['OptimConfigs']['learning_rate'],
-                n_gibbs=cfg['ModelSpecificConfigs']['gibbs_samples']
+                n_items=data.shape[1],
+                n_classes=cfg['ModelSpecificConfigs']['n_class'],
+                alpha0=torch.ones(cfg['ModelSpecificConfigs']['n_class']),  # prior on π
+                phi_init=None,
             )
-        else:
-            raise ValueError('Invalid model type')
 
     elif cfg['GeneralConfigs']['model'] == 'GDINA':
-        model = GDINA(dataloader=train_loader,
-                      n_items=data.shape[1],
-                      n_attributes=cfg['ModelSpecificConfigs']['n_attributes'],
-                      Q=Q,
+        if cfg['OptimConfigs']['amortized']:
+            model = GDINA(dataloader=train_loader,
+                          n_items=data.shape[1],
+                          n_attributes=cfg['ModelSpecificConfigs']['n_attributes'],
+                          Q=Q,
+                          learning_rate=cfg['OptimConfigs']['learning_rate'],
+                          temperature=cfg['OptimConfigs']['gumbel_temperature'],
+                          temperature_decay=cfg['OptimConfigs']['gumbel_decay'],
+                          min_temp=cfg['OptimConfigs']['gumbel_min_temp'],
+                          n_iw_samples=cfg['OptimConfigs']['n_iw_samples']
+                          )
+        else:
+            Q_t = torch.as_tensor(Q, dtype=torch.int64).detach().clone()
+            model = VariationalGDINA(
+                dataloader=train_loader,
+                n_items=data.shape[1],
+                n_attributes=cfg['ModelSpecificConfigs']['n_attributes'],
+                Q=Q_t,
+                alpha0=torch.tensor(1.0),  # scalar → flat Dirichlet over 2^K
+                eps=1e-6,
+                delta_lr=cfg['OptimConfigs'].get('learning_rate', 5e-2),
+                delta_steps=cfg['OptimConfigs'].get('delta_steps', 20),
+                max_enum_k=cfg['ModelSpecificConfigs'].get('max_enum_k', 20),
+            )
+
+    elif cfg['GeneralConfigs']['model'] == 'MIXIRT':
+        if cfg['OptimConfigs']['amortized']:
+            model = VAE(dataloader=train_loader,
+                      nitems=data.shape[1],
                       learning_rate=cfg['OptimConfigs']['learning_rate'],
+                      latent_dims=cfg['ModelSpecificConfigs']['mirt_dim'],
+                      hidden_layer_size=50,
+                      qm=Q,
+                      batch_size=cfg['OptimConfigs']['batch_size'],
+                      n_iw_samples=cfg['OptimConfigs']['n_iw_samples'],
                       temperature=cfg['OptimConfigs']['gumbel_temperature'],
                       temperature_decay=cfg['OptimConfigs']['gumbel_decay'],
                       min_temp=cfg['OptimConfigs']['gumbel_min_temp'],
-                      n_iw_samples=cfg['OptimConfigs']['n_iw_samples']
-                      )
-
-    elif cfg['GeneralConfigs']['model'] == 'MIXIRT':
-        model = VAE(dataloader=train_loader,
-                  nitems=data.shape[1],
-                  learning_rate=cfg['OptimConfigs']['learning_rate'],
-                  latent_dims=cfg['ModelSpecificConfigs']['mirt_dim'],
-                  hidden_layer_size=50,
-                  qm=Q,
-                  batch_size=cfg['OptimConfigs']['batch_size'],
-                  n_iw_samples=cfg['OptimConfigs']['n_iw_samples'],
-                  temperature=cfg['OptimConfigs']['gumbel_temperature'],
-                  temperature_decay=cfg['OptimConfigs']['gumbel_decay'],
-                  min_temp=cfg['OptimConfigs']['gumbel_min_temp'],
-                  beta=1,
-                  nclass=2)
-
+                      beta=1,
+                      nclass=2)
+        else:
+            # Instantiate the model
+            model = VariationalMixMIRT(dataloader=train_loader,
+                      nitems=data.shape[1],
+                      learning_rate=cfg['OptimConfigs']['learning_rate'],
+                      latent_dims=cfg['ModelSpecificConfigs']['mirt_dim'],
+                      qm=Q,
+                      batch_size=cfg['OptimConfigs']['batch_size'],
+                      n_iw_samples=cfg['OptimConfigs']['n_iw_samples'],
+                      temperature=cfg['OptimConfigs']['gumbel_temperature'],
+                      temperature_decay=cfg['OptimConfigs']['gumbel_decay'],
+                      min_temp=cfg['OptimConfigs']['gumbel_min_temp'],
+                      n_obs = data.shape[0],
+                      beta=1,
+                      nclass=2)
     start = time.time()
     trainer.fit(model)
     runtime = time.time() - start

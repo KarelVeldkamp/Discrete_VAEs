@@ -7,9 +7,12 @@ import torch.distributions as dist
 from samplers import GumbelSampler, VectorQuantizer, LogisticSampler, StraightThroughSampler, SpikeAndExp
 import numpy as np
 from encoders import Encoder
+import pytorch_lightning as pl
+from torch.special import digamma, logsumexp
 
-
-
+# helper, compute normalizing ocntant for dirichlet
+def logB_dir(a):
+    return torch.lgamma(a).sum() - torch.lgamma(a.sum())
 
 class Decoder(pl.LightningModule):
     """
@@ -288,6 +291,138 @@ class LCA(pl.LightningModule):
                                 (1 - data) * torch.log(1 - pi@est_probs.T + 1e-6))
 
         est_probs = est_probs.unsqueeze(1)
+        return pi, None, est_probs, log_likelihood
+
+
+
+class VariationalLCA(pl.LightningModule):
+    """
+    Variational EM for LCA with Bernoulli items.
+
+    """
+    def __init__(self,
+                 dataloader,
+                 n_items,
+                 n_classes,
+                 alpha0=None,
+                 phi_init=None,
+                 eps=1e-6):
+        super().__init__()
+        self.automatic_optimization = False # update posteriors manually based on conjugacy
+        self.dataloader = dataloader
+        self.n_items, self.n_class = n_items, n_classes
+        self.eps = eps
+
+        # Dirichlet prior on pi, flat if not specified
+        if alpha0 is None:
+            alpha0 = torch.ones(self.n_class)
+        self.register_buffer("alpha0", alpha0.float()) # prior for pi
+        self.register_buffer("alpha", self.alpha0.clone())  # posterior for pi
+
+        # conditional probabilities
+        if phi_init is None:
+            phi_init = (0.5 + 0.05 * torch.randn(self.n_items, self.n_class)).clamp(0.05, 0.95)
+        phi_init = phi_init.float().clamp(self.eps, 1 - self.eps)
+        self.register_buffer("Phi", phi_init)
+        self.register_buffer("logPhi", phi_init.log())
+        self.register_buffer("log1mPhi", (1 - phi_init).log())
+
+        # accumulators per epoch
+        self.register_buffer("Nk_sum", torch.zeros(self.n_class))  # N class observations
+        self.register_buffer("x_counts_sum", torch.zeros(self.n_items, self.n_class))  # item responses per class
+        self.register_buffer("elbo_sum", torch.tensor(0.0))
+        self.samples_seen = 0
+
+    def forward(self, X):
+        """E-step for a batch: responsibilities r (N,K)."""
+        Elogpi = digamma(self.alpha) - digamma(self.alpha.sum())        # (K,)
+        log_like = (X @ self.logPhi) + ((1 - X) @ self.log1mPhi)        # (N,K)
+        log_p_c = log_like + Elogpi # log probability of being in class
+        p_c = torch.exp(log_p_c - logsumexp(log_p_c, dim=1, keepdim=True))    # (N,K)
+        return p_c, log_like, Elogpi
+
+    def training_step(self, batch, batch_idx):
+        X = batch.float()
+        p_c, log_like, Elogpi = self(X)  # E-step
+
+        # upadate sufficient statistics
+        self.Nk_sum += p_c.sum(0).detach()              # (K,) observations per class
+        self.x_counts_sum += X.T @ p_c.detach()         # (J,K) expected item counts per class
+        self.samples_seen += X.size(0)
+
+        # ELBO
+        batch_elbo = (p_c * log_like).sum() + (p_c * Elogpi).sum()
+        batch_elbo += -(p_c.clamp_min(1e-12).log() * p_c).sum()  # entropy of q(Z)
+        self.elbo_sum += batch_elbo.detach()
+
+        loss = -batch_elbo / X.size(0)
+        self.log("train_loss", loss , prog_bar=True, on_step=False, on_epoch=True, logger=True)
+        return {"loss": loss}
+
+    def on_train_epoch_start(self):
+        self.Nk_sum.zero_()
+        self.x_counts_sum.zero_()
+        self.elbo_sum.zero_()
+        self.samples_seen = 0
+
+    def on_train_epoch_end(self):
+        # update dirichlet parameter for pi
+        self.alpha = self.alpha0 + self.Nk_sum
+
+        # update conditional probabilities
+        Nk = self.Nk_sum.clamp_min(self.eps)  # (K,)
+        Phi_new = (self.x_counts_sum / Nk.unsqueeze(0)).clamp(self.eps, 1 - self.eps)
+        self.Phi.copy_(Phi_new)
+        self.logPhi.copy_(self.Phi.log())
+        self.log1mPhi.copy_((1 - self.Phi).log())
+
+        # add Dirichlet prior/posterior terms to ELBO for epoch logging
+
+        Elogpi = digamma(self.alpha) - digamma(self.alpha.sum())
+        log_p_pi = -logB_dir(self.alpha0) + ((self.alpha0 - 1) * Elogpi).sum()
+        log_q_pi = -logB_dir(self.alpha)  + ((self.alpha  - 1) * Elogpi).sum()
+        elbo_epoch = self.elbo_sum + (log_p_pi - log_q_pi)
+        self.log("elbo_epoch", elbo_epoch / max(1, self.samples_seen), prog_bar=True)
+
+    def train_dataloader(self):
+        return self.dataloader
+
+    def configure_optimizers(self):
+        return None # optimized manually
+
+    def compute_parameters(self, data):
+        """
+        compute the log likelihood,
+        :param data: data_pars matrix (numpy array or tensor) with shape (N, J)
+        :return: (pi, None, est_probs, log_likelihood)
+          - pi:          (N, K) per-person class probabilities
+          - None:        placeholder to match old API
+          - est_probs:   (J, 1, K) item conditional probabilities φ
+          - log_likelihood: scalar tensor, summed log-likelihood over all entries
+        """
+        if not torch.is_tensor(data):
+            data = torch.tensor(data, dtype=torch.float32)
+        else:
+            data = data.float()
+
+        data = data.to(self.device)
+
+        # compute probability of classes given data
+        p_c, _, _ = self(data)
+
+        est_probs = self.Phi.detach().clone()  # (J, K)
+
+        # mixture probabilities for each item:
+        mix_probs = p_c @ est_probs.T
+        mix_probs = mix_probs.clamp_min(1e-6).clamp_max(1 - 1e-6)
+
+        log_likelihood = torch.sum(
+            data * torch.log(mix_probs) + (1 - data) * torch.log(1 - mix_probs)
+        )
+
+        est_probs = est_probs.unsqueeze(1)
+        pi = p_c.detach()
+
         return pi, None, est_probs, log_likelihood
 
 

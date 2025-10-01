@@ -5,6 +5,11 @@ import torch
 from samplers import GumbelSampler
 from encoders import *
 import numpy as np
+from torch.special import digamma, logsumexp
+
+# normalizing constant for dirichlet
+def logB_dir(a):
+    return torch.lgamma(a).sum() - torch.lgamma(a.sum())
 
 class GDINADecoder(pl.LightningModule):
     def __init__(self,
@@ -92,7 +97,8 @@ class GDINA(pl.LightningModule):
 
     def loss(self, X_hat, z, pi, batch):
 
-        lll = ((batch * X_hat).clamp(1e-7).log() + ((1 - batch) * (1 - X_hat)).clamp(1e-7).log()).sum(-1, keepdim=True)
+        lll = (batch * X_hat.clamp(1e-7, 1 - 1e-7).log() +
+               (1 - batch) * (1 - X_hat).clamp(1e-7, 1 - 1e-7).log()).sum(-1, keepdim=True)
 
         # Compute the KL divergence for each attribute
         kl_type = 'concrete'
@@ -257,9 +263,6 @@ def expand_interactions(attributes):
     # multiply over the diffent attributes, so that we get the probability of observing all necessary attributes
     effects = attributes.prod(3)
 
-
-
-
     return effects
 
 def sim_gdina_pars(N, nitems, nattributes):
@@ -311,3 +314,196 @@ def sim_GDINA(N, nitems, nattributes, sim_pars):
     delta = np.expand_dims(delta, 1)
 
     return data, delta, att.detach().numpy()
+
+
+class VariationalGDINA(pl.LightningModule):
+    """
+    Variational EM for GDINA with Q-matrix masking of effects.
+      - Latent attribute profiles over all 2^K combinations with Dirichlet prior on class proportions π.
+      - Item parameters delta: POINT ESTIMATES (no prior), updated by gradient steps each epoch.
+      - Uses your GDINADecoder(Q): columns of Q are effects; we add an intercept column inside the decoder.
+    """
+    def __init__(self,
+                 dataloader,
+                 n_items: int,
+                 n_attributes: int,
+                 Q,                             # (J, E_effects) mask over effects (no intercept column!)
+                 alpha0: torch.Tensor = None,   # Dirichlet prior over 2^K profiles (vector or scalar concentration)
+                 eps: float = 1e-6,
+                 delta_lr: float = 5e-2,
+                 delta_steps: int = 20,
+                 max_enum_k: int = 20):
+        super().__init__()
+        self.automatic_optimization = False # optimize manually using conjucagy
+        self.dataloader = dataloader
+        self.n_items = n_items
+        self.n_att = n_attributes
+        self.eps = eps
+
+        self.delta_lr = delta_lr
+        self.delta_steps = delta_steps
+
+
+        self.n_effects = 2 ** self.n_att
+
+        self.decoder = GDINADecoder(Q)
+
+        # Dirichlet prior, flat if not specified
+        if alpha0 is None:
+            alpha0 = torch.ones(self.n_effects, dtype=torch.float32)
+        elif alpha0.ndim == 0:
+            alpha0 = torch.full((self.n_effects,), float(alpha0))
+
+        self.register_buffer("alpha0", alpha0.float())
+        self.register_buffer("alpha", self.alpha0.clone())
+
+
+        # all_attr: (C, K) binary profiles
+        all_eff = torch.tensor(
+            [list(map(int, f"{i:0{self.n_att}b}")) for i in range(self.n_effects)],
+            dtype=torch.float32
+        )
+        self.register_buffer("all_attr", all_eff)  # (C, K)
+
+        # effects for every profile
+        eff = expand_interactions(all_eff)      # (1, C, S)
+        self.register_buffer("all_eff", eff)   # (1, C, S)
+
+        # sufficient stats
+        self.register_buffer("Nk_sum", torch.zeros(self.n_effects))
+        self.register_buffer("elbo_sum", torch.tensor(0.0))
+        self.samples_seen = 0
+
+
+    def _class_item_probs(self):
+        """
+        Compute class-conditional item probabilities for all classes at once.
+        Returns:
+            probs: (C, J)
+        """
+        # decoder.forward: input (IW, B, S_effects); output (IW, B, J)
+        probs = self.decoder(self.all_eff)  # (1, C, J)
+        probs = probs.squeeze(0)            # (C, J)
+        probs = probs.clamp(self.eps, 1 - self.eps)
+        return probs
+
+
+
+    def forward(self, X):
+        """
+        E-step: responsibilities r (N, C) given current alpha and delta.
+        Also returns probs (C, J) and per-batch log_like (N, C).
+        """
+        probs = self._class_item_probs()                      # (C, J)
+        log_like = (X @ probs.log().T) + ((1 - X) @ (1 - probs).log().T)  # (N, C)
+
+        Elogpi = digamma(self.alpha) - digamma(self.alpha.sum())          # (C,)
+        log_r = log_like + Elogpi
+        r = torch.exp(log_r - logsumexp(log_r, dim=1, keepdim=True))      # (N, C)
+        return r, probs, log_like, Elogpi
+
+
+    def training_step(self, batch, batch_idx):
+        X = batch.float()
+        r, probs, log_like, Elogpi = self(X) # E step
+
+        # accumulate sufficient stats for π (we do π-update once per epoch)
+        self.Nk_sum += r.sum(0).detach()
+        self.samples_seen += X.size(0)
+
+        # ELBO
+        batch_elbo = (r * log_like).sum() + (r * Elogpi).sum()
+        batch_elbo += -(r.clamp_min(1e-12).log() * r).sum()  # entropy of q(Z)
+        self.elbo_sum += batch_elbo.detach()
+
+        # log loss function (negative ELBO / N)
+        loss = -batch_elbo / X.size(0)
+        self.log("train_loss", loss, prog_bar=True, on_step=False, on_epoch=True, logger=True)
+        return {"loss": loss}
+
+    def on_train_epoch_start(self):
+        self.Nk_sum.zero_()
+        self.elbo_sum.zero_()
+        self.samples_seen = 0
+
+    def on_train_epoch_end(self):
+        # M step for pi
+        self.alpha = self.alpha0 + self.Nk_sum
+
+        # M-step for delta
+        opt = torch.optim.Adam([self.decoder.delta], lr=self.delta_lr)
+        for _ in range(self.delta_steps): # do so many steps
+            for batch in self.train_dataloader():
+                Xb = batch[0] if isinstance(batch, (list, tuple)) else (
+                batch["x"] if isinstance(batch, dict) else batch)
+                Xb = Xb.float().to(self.device)
+
+                # E-step for this batch with current delta & alpha
+                p_att, probs, _, _ = self(Xb)    # probs depends on decoder.delta
+
+                # Expected complete-data negative log-likelihood (per batch)
+                # Using sufficient stats form:
+                rTX = p_att.T @ Xb               # (C, J)
+                rT1mX = p_att.T @ (1 - Xb)       # (C, J)
+                loss_batch = - (rTX * probs.log() + rT1mX * (1 - probs).log()).sum()
+
+                opt.zero_grad(set_to_none=True)
+                loss_batch.backward()
+                # enforce mask/normalization via constrain (done implicitly next forward),
+                # but keep raw logits unconstrained; no in-place projection needed here
+                opt.step()
+
+
+        Elogpi = digamma(self.alpha) - digamma(self.alpha.sum())
+        log_p_pi = -logB_dir(self.alpha0) + ((self.alpha0 - 1) * Elogpi).sum()
+        log_q_pi = -logB_dir(self.alpha)  + ((self.alpha  - 1) * Elogpi).sum()
+        elbo_epoch = self.elbo_sum + (log_p_pi - log_q_pi)
+        self.log("elbo_epoch", elbo_epoch / max(1, self.samples_seen), prog_bar=True)
+
+    def train_dataloader(self):
+        return self.dataloader
+
+    def configure_optimizers(self):
+        return None # manual optimization
+
+    @torch.no_grad()
+    def fscores(self, batch):
+        """
+        Return per-subject attribute marginal probabilities (N, K),
+        obtained by responsibilities over classes times class->attribute map.
+        """
+        X = batch.float().to(self.device)
+        p_att, _, _, _ = self(X)              # (N, C)
+        # expectation of attributes u
+        pi_attr = p_att @ self.all_attr.to(self.device)  # (N, K)
+        return pi_attr
+
+    @torch.no_grad()
+    def compute_parameters(self, data):
+        """
+        Match your amortized `compute_parameters` signature and shapes:
+          returns (pi, None, delta, log_likelihood)
+          - pi: (N, K) attribute marginals
+          - None: placeholder
+          - delta: (J, 1, E_effects+1) after constraint (intercept included)
+          - log_likelihood: summed scalar log-likelihood
+        """
+        if not torch.is_tensor(data):
+            data = torch.tensor(data, dtype=torch.float32)
+        X = data.float().to(self.device)
+
+        # E-step for full data
+        p_att, probs, _, _ = self(X)                      # r: (N, C), probs: (C, J)
+
+        # attribute marginals (N, K), consistent with your downstream API
+        pi = p_att @ self.all_attr.to(self.device)
+
+        # constrained delta with Q mask and softmax over effects (intercept+effects)
+        delta = self.decoder.constrain_delta(self.decoder.delta)  # (J, E_with_intercept)
+        delta_out = delta.unsqueeze(1)                            # (J, 1, E_with_intercept)
+
+        # mixture probabilities per person and item
+        mix_probs = (p_att @ probs).clamp(self.eps, 1 - self.eps)     # (N, J)
+        log_likelihood = torch.sum(X * mix_probs.log() + (1 - X) * (1 - mix_probs).log())
+
+        return pi, None, delta_out, log_likelihood
