@@ -1,6 +1,6 @@
 Configs:
   GeneralConfigs:
-    model: LCA   # GDINA, LCA, or MIXIRT (this is overwritten when running fit_model from the command line)
+    model: MIXIRT   # GDINA, LCA, or MIXIRT (this is overwritten when running fit_model from the command line)
     repetition : 1
     save_plot: True # whether to save a recovery plot
     separate_plots: False # whether to save additional plots for each class/effect
@@ -8,12 +8,12 @@ Configs:
     save_parameter_estimates: True
   SimConfigs:
     N: 10000
-    n_items: 100
+    n_items: 110
     sim_pars: True
     sim_data: True  # whether to simulate data_pars or load it from data_pars folder
     save_data_pars: False   # whether to save the dataß_pars to disk
   OptimConfigs:
-    amortized: True
+    amortized: False
     learning_rate: 0.01
     single_epoch_test_run: False
     detect_anomaly: False # Only set to true for debugging: checks what operation is causing NAs
@@ -25,7 +25,7 @@ Configs:
     gumbel_temperature: 1
     gumbel_decay: .9
     gumbel_min_temp: 0.01
-    n_iw_samples: 10
+    n_iw_samples: 1
     n_rep: 1 # number of times to fit the model with different starting values
     accelerator: 'cpu' # cpu or mps
   ModelSpecificConfigs:

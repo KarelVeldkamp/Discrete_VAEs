@@ -31,7 +31,7 @@ def parse_arguments(args, cfg):
     cfg['OptimConfigs']['gumbel_decay'] = float(args[5])
     cfg['OptimConfigs']['gumbel_min_temp'] = float(args[6])
     cfg['SimConfigs']['n_items'] = int(args[7])
-    cfg['SimConfigs']['amortized'] = bool(args[8])
+    cfg['SimConfigs']['amortized'] = args[8] == 'True' # convert string to bool
 
     # model specifc arguments
     if cfg['GeneralConfigs']['model'] == 'LCA':

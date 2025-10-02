@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="1afaf8ee-2420-408e-b48a-692cb232e8d7" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/configs/simfitconfig.yml" beforeDir="false" afterPath="$PROJECT_DIR$/configs/simfitconfig.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/data.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/data.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
