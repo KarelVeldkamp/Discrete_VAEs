@@ -144,8 +144,9 @@ class GDINA(pl.LightningModule):
         return loss, weight
 
     def training_step(self, batch):
-        X_hat, pi, att = self(batch)
-        loss, _ = self.loss(X_hat, att, pi, batch)
+        data, _ = batch
+        X_hat, pi, att = self(data)
+        loss, _ = self.loss(X_hat, att, pi, data)
 
         self.log('train_loss', loss)
         self.log('lr', self.trainer.optimizers[0].param_groups[0]['lr'])
@@ -403,8 +404,9 @@ class VariationalGDINA(pl.LightningModule):
         return r, probs, log_like, Elogpi
 
 
-    def training_step(self, batch, batch_idx):
-        X = batch.float()
+    def training_step(self, batch):
+        data, _ = batch
+        X = data.float()
         r, probs, log_like, Elogpi = self(X) # E step
 
         # accumulate sufficient stats for π (we do π-update once per epoch)

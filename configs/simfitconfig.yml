@@ -1,6 +1,6 @@
 Configs:
   GeneralConfigs:
-    model: GDINA   # GDINA, LCA, or MIXIRT (this is overwritten when running fit_model from the command line)
+    model: LCA   # GDINA, LCA, or MIXIRT (this is overwritten when running fit_model from the command line)
     repetition : 1
     save_plot: True # whether to save a recovery plot
     separate_plots: False # whether to save additional plots for each class/effect
@@ -11,7 +11,7 @@ Configs:
     n_items: 100
     sim_pars: True
     sim_data: True  # whether to simulate data_pars or load it from data_pars folder
-    save_data_pars: False   # whether to save the data_pars to disk
+    save_data_pars: False   # whether to save the dataß_pars to disk
   OptimConfigs:
     amortized: True
     learning_rate: 0.01
@@ -20,24 +20,24 @@ Configs:
     max_epochs: 2000
     min_epochs: 10
     min_delta: 0.000000008
-    patience: 10
+    patience: 20
     batch_size: 1000
     gumbel_temperature: 1
     gumbel_decay: .9
     gumbel_min_temp: 0.01
-    n_iw_samples: 1
+    n_iw_samples: 10
     n_rep: 1 # number of times to fit the model with different starting values
     accelerator: 'cpu' # cpu or mps
   ModelSpecificConfigs:
     # RBM
     gibbs_samples: 1
     # LCA
-    n_class: 2 # number of classes in LCA
+    n_class: 10 # number of classes in LCA
     emb_dim: 5 # size of latent embeddings in VQ-VAE
     lca_method: 'gs' #st, gs, vq, dvae, log or rbm
     # GDINA
     n_attributes: 2 # number of attributes in GDINA
     # MIXIRT
-    mirt_dim: 3  # number of mirt dimenisons for the mixture MIRT model
+    mirt_dim: 10  # number of mirt dimenisons for the mixture MIRT model
     cov: 0.3 # covariance between latent dimensions for the mixture MIRT model
     class_prob: .5 # class probability for the mixture MIRT mdoel

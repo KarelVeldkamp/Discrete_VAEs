@@ -20,7 +20,7 @@ class MemoryDataset(Dataset):
         return len(self.x_train)
 
     def __getitem__(self, idx):
-        return self.x_train[idx]
+        return self.x_train[idx], idx
 
 def parse_arguments(args, cfg):
     # general arguments

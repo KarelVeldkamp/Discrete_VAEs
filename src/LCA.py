@@ -136,7 +136,7 @@ class LCA(pl.LightningModule):
         self.n_samples = n_iw_samples
         self.min_temp = min_temp
 
-    def forward(self, x: torch.Tensor, m: torch.Tensor=None):
+    def forward(self, x: torch.Tensor, idx: torch.Tensor=None):
         """
         forward pass though the entire network
         :param x: tensor representing response data_pars
@@ -162,7 +162,7 @@ class LCA(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         # forward pass
 
-        data = batch
+        data, idx = batch
         X_hat, pi, z = self(data)
 
 
@@ -341,8 +341,9 @@ class VariationalLCA(pl.LightningModule):
         p_c = torch.exp(log_p_c - logsumexp(log_p_c, dim=1, keepdim=True))    # (N,K)
         return p_c, log_like, Elogpi
 
-    def training_step(self, batch, batch_idx):
-        X = batch.float()
+    def training_step(self, batch):
+        data, idx = batch
+        X = data.float()
         p_c, log_like, Elogpi = self(X)  # E-step
 
         # upadate sufficient statistics

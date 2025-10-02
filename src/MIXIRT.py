@@ -104,7 +104,7 @@ class VAE(pl.LightningModule):
         self.n_samples = n_iw_samples
         self.kl=0
 
-    def forward(self, x: torch.Tensor, m: torch.Tensor=None):
+    def forward(self, x: torch.Tensor, idx: torch.Tensor=None):
         """
         forward pass though the entire network
         :param x: tensor representing response data_pars
@@ -138,8 +138,9 @@ class VAE(pl.LightningModule):
         return torch.optim.Adam(self.parameters(), lr=self.lr, amsgrad=True)
 
     def training_step(self, batch, batch_idx):
+
         # forward pass
-        data = batch
+        data, idx = batch
         reco, mu, log_sigma, z, pi, cl = self(data)
 
         mask = torch.ones_like(data)
@@ -392,8 +393,6 @@ class VariationalMixMIRT(pl.LightningModule):
         x:  [B, I]
         idx: [B] indices of rows in the dataset corresponding to x.
         """
-        if idx is None:
-            idx = torch.arange(x.shape[0], device=x.device)
 
         #  variational params
         mu        = self.mu_param[idx]             # [B, D]
@@ -426,12 +425,10 @@ class VariationalMixMIRT(pl.LightningModule):
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.lr, amsgrad=True)
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch):
         # Allow either batch or (batch, idx) with minimal changes
-        if isinstance(batch, (list, tuple)) and len(batch) == 2:
-            data, idx = batch
-        else:
-            data, idx = batch, None
+
+        data, idx = batch
 
         reco, mu, log_sigma, z, pi, cl = self(data, idx)
         mask = torch.ones_like(data)
@@ -547,3 +544,4 @@ class VariationalMixMIRT(pl.LightningModule):
         itempars = torch.cat([b_exp, a_rep], dim=1)                 # (nitems, ndim+1, nclass)
 
         return cl_est, theta_est, itempars, log_likelihood
+
