@@ -161,8 +161,10 @@ class VAE(pl.LightningModule):
         #
         #cl = cl / cl.sum(dim=-1, keepdim=True)
 
-        cl = torch.clamp(cl, min=1e-6, max=1-1e-6)  # Ensure strictly positive
-        cl = cl / cl.sum(-1, keepdim=True)  # Re-normalize for numerical safety
+
+        eps = 1e-5
+        cl = cl * (1 - eps * cl.size(-1)) + eps
+        cl = cl / cl.sum(-1, keepdim=True)
 
 
         # calculate normal KL divergence
@@ -449,8 +451,8 @@ class VariationalMixMIRT(pl.LightningModule):
                          (1 - input) * ((1 - reco).clamp(eps, 1 - eps)).log())
         logll = (log_p_x_theta * mask).sum(dim=-1, keepdim=True)  # [K, B, 1]
 
-        # Normalize cl for safety
-        cl = torch.clamp(cl, min=1e-6, max=1 - 1e-6)
+        eps = 1e-5
+        cl = cl * (1 - eps * cl.size(-1)) + eps
         cl = cl / cl.sum(-1, keepdim=True)
 
         # KL standard Normal prior
