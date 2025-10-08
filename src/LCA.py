@@ -516,8 +516,8 @@ def sim_LCA(N, nitems, nclass, sim_pars=True):
         # exit()
 
     else:
-        cond_probs = np.load(f'./saved_data/LCA/itempars/{nclass}_{nitems}.npy')
-        true_class = np.load(f'./saved_data/LCA/class/{nclass}_{nitems}.npy')
+        cond_probs = np.load(f'../saved_data/LCA/itempars/{nclass}_{nitems}.npy')
+        true_class = np.load(f'../saved_data/LCA/class/{nclass}_{nitems}.npy')
 
 
     # simulate responses

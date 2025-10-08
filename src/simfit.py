@@ -19,10 +19,12 @@ from scipy.stats import pearsonr
 import matplotlib.pyplot as plt
 import shutil
 
+
 # set working directory to source file location
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
-os.chdir(dname)
+parent_dir = os.path.dirname(dname)
+os.chdir(parent_dir)
 
 # read in configurations
 with open("../configs/simfitconfig.yml", "r") as f:
@@ -264,6 +266,7 @@ else:
 
 # compute MSE of conditional probabilities
 mse_itempars = MSE(best_itempars.detach().numpy()[true_itempars!=0], true_itempars[true_itempars!=0])
+print(mse_itempars)
 
 bias_itempars = np.mean(best_itempars.detach().numpy()[true_itempars!=0] - true_itempars[true_itempars!=0])
 var_itempars = np.var(best_itempars.detach().numpy()[true_itempars!=0])
