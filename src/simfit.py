@@ -23,8 +23,7 @@ import shutil
 # set working directory to source file location
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
-parent_dir = os.path.dirname(dname)
-os.chdir(parent_dir)
+os.chdir(dname)
 
 # read in configurations
 with open("../configs/simfitconfig.yml", "r") as f:
