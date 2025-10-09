@@ -19,9 +19,9 @@ replication = args[7]
 NITEMS = as.numeric(args[8])
 NREP=as.numeric(args[9])
 
-data = np$load(path.expand(paste0(c('./saved_data/LCA/data/', NCLASS, '_', NITEMS, '_', replication, '.npy'), collapse = ''))) +1
-true_class = np$load(path.expand(paste0(c('./saved_data/LCA/class/', NCLASS, '_', NITEMS,'.npy'), collapse = '')))
-true_probs = np$load(path.expand(paste0(c('./saved_data/LCA/itempars/', NCLASS, '_', NITEMS,'.npy'), collapse = '')))
+data = np$load(path.expand(paste0(c('../saved_data/LCA/data/', NCLASS, '_', NITEMS, '_', replication, '.npy'), collapse = ''))) +1
+true_class = np$load(path.expand(paste0(c('../saved_data/LCA/class/', NCLASS, '_', NITEMS,'.npy'), collapse = '')))
+true_probs = np$load(path.expand(paste0(c('../saved_data/LCA/itempars/', NCLASS, '_', NITEMS,'.npy'), collapse = '')))
 true_probs= matrix(true_probs, nrow=nrow(true_probs))
 
 
@@ -90,13 +90,13 @@ results = data.frame('model'='LCA',
 
 # write estimates to file
 
-print(paste0(c('./results/estimates/mmlestimates_LCA_', NCLASS, '_', replication, '_', NITEMS, '_', NREP,'.csv'), collapse=''))
-write.csv(results, paste0(c('./results/estimates/mmlestimates_LCA_', NCLASS, '_', replication, '_', NITEMS, '_', NREP, '.csv'), collapse=''))
+print(paste0(c('../results/estimates/mmlestimates_LCA_', NCLASS, '_', replication, '_', NITEMS, '_', NREP,'.csv'), collapse=''))
+write.csv(results, paste0(c('../results/estimates/mmlestimates_LCA_', NCLASS, '_', replication, '_', NITEMS, '_', NREP, '.csv'), collapse=''))
 
 # write metrics to file
 
 metrics = c(as.character(acc), as.character(mse_itempars), as.character(mse_theta), as.character(var_itempars), as.character(var_theta),
             as.character(bias_itempars), as.character(bias_theta), as.character(runtime))
-fileConn<-file(paste0(c('./results/metrics/mmlmetrics_LCA_', NCLASS, '_', replication, '_', NITEMS,'_', NREP, '.txt'), collapse=''))
+fileConn<-file(paste0(c('../results/metrics/mmlmetrics_LCA_', NCLASS, '_', replication, '_', NITEMS,'_', NREP, '.txt'), collapse=''))
 writeLines(metrics ,fileConn)
 close(fileConn)
