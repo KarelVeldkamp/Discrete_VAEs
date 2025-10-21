@@ -28,10 +28,7 @@ class IRTDecoder(pl.LightningModule):
         self.nclass = nclass
 
         # remove edges between latent dimensions and items that have a zero in the Q-matrix
-        if qm is None:
-            self.qm = torch.ones((latent_dims, nitems))
-        else:
-            self.qm = torch.Tensor(qm).t()
+        self.register_buffer("qm", torch.ones((latent_dims, nitems)) if qm is None else torch.as_tensor(qm).t())
 
 
     def forward(self, cl: torch.Tensor, theta: torch.Tensor) -> torch.Tensor:
@@ -43,8 +40,7 @@ class IRTDecoder(pl.LightningModule):
         """
 
         #print(cl[:, 0:1])
-        self.qm = self.qm.to(self.weights)
-        pruned_weights= self.weights * self.qm
+        pruned_weights= self.weights * self.qm.to(cl)
 
         out = torch.matmul(theta, pruned_weights) + torch.matmul(cl, self.biases)
         out = self.activation(out)
@@ -117,9 +113,9 @@ class VAE(pl.LightningModule):
         cl = latent_vector[:,(self.latent_dims*2):(self.latent_dims*2+self.nclass)]
 
 
-        mu = mu.repeat(self.n_samples,1,1)
-        log_sigma = log_sigma.repeat(self.n_samples,1,1)
-        log_pi = cl.repeat(self.n_samples,1,1)
+        mu = mu.unsqueeze(0).expand(self.n_samples, -1, -1)
+        log_sigma = log_sigma.unsqueeze(0).expand(self.n_samples, -1, -1)
+        log_pi = cl.unsqueeze(0).expand(self.n_samples, -1, -1)
 
         # print(torch.min(log_pi))
         # print(torch.max(log_pi))
@@ -155,9 +151,11 @@ class VAE(pl.LightningModule):
     def loss(self, input, reco, mask, mu, sigma, z, pi, cl):
         #calculate log likelihood
 
-        input = input.unsqueeze(0).repeat(reco.shape[0], 1, 1) # repeat input k times (to match reco size)
-        log_p_x_theta = ((input * reco).clamp(1e-7).log() + ((1 - input) * (1 - reco)).clamp(1e-7).log()) # compute log ll
-        logll = (log_p_x_theta * mask).sum(dim=-1, keepdim=True) # set elements based on missing data_pars to zero
+        input_exp = input.unsqueeze(0).expand(reco.size(0), -1, -1)
+        reco = reco.clamp(1e-7, 1 - 1e-7)
+        log_p_x_theta = input_exp * reco.log() + (1 - input_exp) * (1 - reco).log()
+        mask_exp = mask.unsqueeze(0).expand_as(log_p_x_theta)
+        logll = (log_p_x_theta * mask_exp).sum(dim=-1, keepdim=True)
         #
         #cl = cl / cl.sum(dim=-1, keepdim=True)
 
@@ -384,8 +382,9 @@ class VariationalMixMIRT(pl.LightningModule):
         self.kl = 0
 
     def _gumbel_softmax(self, logits, temperature):
-        gumbel_noise = -torch.empty_like(logits).exponential_().log()  # sample Gumbel(0,1)
-        y = (logits + gumbel_noise) / max(temperature, 1e-8)
+        U = torch.clamp(torch.rand_like(logits), 1e-6, 1 - 1e-6)
+        g = -torch.log(-torch.log(U))
+        y = (logits + g) / max(temperature, 1e-8)
         return F.softmax(y, dim=-1)
 
 
@@ -402,9 +401,9 @@ class VariationalMixMIRT(pl.LightningModule):
         log_pi    = self.class_logits_param[idx]   # [B, C]
 
         # Repeat for importance samples
-        mu        = mu.unsqueeze(0).expand(self.n_samples, -1, -1)
-        log_sigma = log_sigma.unsqueeze(0).expand(self.n_samples, -1, -1)
-        log_pi    = log_pi.unsqueeze(0).expand(self.n_samples, -1, -1)
+        mu = mu.repeat(self.n_samples, 1, 1)
+        log_sigma = log_sigma.repeat(self.n_samples, 1, 1)
+        log_pi = log_pi.repeat(self.n_samples, 1, 1)
 
         # Sample gumbel class assignments
         cl = self._gumbel_softmax(log_pi, self.temperature)  # [K, B, C]

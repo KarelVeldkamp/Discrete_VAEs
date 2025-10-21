@@ -41,9 +41,6 @@ def parse_arguments(args, cfg):
         cfg['ModelSpecificConfigs']['n_attributes'] = int(args[9])
     if cfg['GeneralConfigs']['model'] == 'MIXIRT':
         cfg['ModelSpecificConfigs']['mirt_dim'] = int(args[9])
-
-
-
     return cfg
 
 def get_paths(cfg):

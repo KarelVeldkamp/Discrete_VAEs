@@ -9,5 +9,5 @@ while IFS= read -r line; do
   [ -z "$line" ] && continue
 
   # Run the Python script with the line's values as arguments
-  python3 main.py $line
+  python3 src/simfit.py $line
 done < "$PARAM_FILE"

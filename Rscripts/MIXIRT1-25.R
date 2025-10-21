@@ -9,13 +9,13 @@ NITEMS = ifelse(MIRT_DIM==3, 28, 110)
 replication =1
 np <- import('numpy')
 
-for (replication in 1:25){
+for (replication in 1:100){
   for (nrep in c(1,5)){
     print(paste(c('replication', replication)))
-    data = np$load(path.expand(paste0(c('~/Downloads/saved_data_snellius/MIXIRT/data/', MIRT_DIM, '_', replication, '.npy'), collapse = ''))) 
-    theta_true = np$load(path.expand(paste0(c('~/Downloads/saved_data_snellius/MIXIRT/theta/', MIRT_DIM,'.npy'), collapse = ''))) 
-    itempars_true = np$load(path.expand(paste0(c('~/Downloads/saved_data_snellius/MIXIRT/itempars/', MIRT_DIM,'.npy'), collapse = ''))) 
-    class_true = np$load(path.expand(paste0(c('~/Downloads/saved_data_snellius/MIXIRT/class/', MIRT_DIM,'.npy'), collapse = ''))) 
+    data = np$load(path.expand(paste0(c('~/Documents/saved_data/MIXIRT/data/', MIRT_DIM, '_', replication, '.npy'), collapse = ''))) 
+    theta_true = np$load(path.expand(paste0(c('~/Documents/saved_data/MIXIRT/theta/', MIRT_DIM,'.npy'), collapse = ''))) 
+    itempars_true = np$load(path.expand(paste0(c('~/Documents/saved_data/MIXIRT/itempars/', MIRT_DIM,'.npy'), collapse = ''))) 
+    class_true = np$load(path.expand(paste0(c('~/Documents/saved_data/MIXIRT/class/', MIRT_DIM,'.npy'), collapse = ''))) 
     cl_true = apply(class_true,1, which.max)-1
     
     write.table(data,"./Mplus/mix_sim.dat",col=F,row=F)
@@ -24,9 +24,9 @@ for (replication in 1:25){
     system(paste0("mplus ./Mplus/mixIRT_", MIRT_DIM, "D_", nrep, "START.inp"))
     runtime = runtime = as.numeric(Sys.time()-t1,units="secs")
     
-    res=readModels(paste0("mixIRT_", MIRT_DIM, "D.out"))
+    res=readModels(paste0("mixIRT_", MIRT_DIM, "D_", nrep, "START.out"))
     pars = res$parameters$unstandardized
-    
+
     
     nclass = 2
     b_est = matrix(nrow=NITEMS, ncol=nclass)
