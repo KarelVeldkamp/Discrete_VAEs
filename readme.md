@@ -58,7 +58,7 @@ All parameter estimates, including EAP latent variable estimates, will automatic
 
 ## ⚙️ Configuration
 
-By default, model fitting uses the configurations specified in:
+By default, model fitting uses the configurations in:
 
 ```
 ./configs/fitconfig.yml
