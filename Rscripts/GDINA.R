@@ -8,9 +8,9 @@ filename = strsplit(args[grep("--file=", commandArgs(trailingOnly = FALSE))], '=
 script_path <- normalizePath(filename)
 script_dir <- dirname(script_path)
 parent_dir <- dirname(script_dir)
-setwd(parent_dir)
+setwd(script_dir)
 
-# for now set arguments manually
+
 NATTRIBUTES = as.numeric(args[6])
 replication = as.numeric(args[7])
 NITEMS = as.numeric(args[8])
@@ -76,8 +76,11 @@ true_intercepts = true_itempars[,1]
 Q = true_delta != 0
 Q = reverse_expand_interactions(Q, NATTRIBUTES)
 
+# initializing parameters (zero intercepts, symmetric across attributes)
+Kvec <- rowSums(Q != 0)
+catprob_init <- lapply(Kvec, function(K) { p <- rep(0.2, 2^K); p[1] <- 0; p[2^K] <- 0.8; p })
 
-
+# desgin mantrix: dont include intercepts
 design.list <- lapply(1:nrow(Q), function(j) {
   Qj <- Q[j, ]
   K <- sum(Qj)
@@ -87,8 +90,6 @@ design.list <- lapply(1:nrow(Q), function(j) {
   }
   return (dm)
 })
-
-
 
 library(combinat)  # for 'permn'
 
@@ -101,9 +102,10 @@ for (start in 1:NREP){
                  Q = Q, 
                  model = "GDINA", 
                  att.dist = 'independent', 
-                 control = list('randomseed'=start),
+                 catprob.parm = catprob_init,
+                 control = list('randomseed'=start, lower.p=0),
                  design.matrix =design.list
-                 )
+  )
   ll <- logLik(model)[1]
   print(ll)
   if (ll > best_ll){
@@ -113,7 +115,6 @@ for (start in 1:NREP){
 runtime = runtime = as.numeric(Sys.time()-t1,units="secs")
 print(runtime)
 
-
 delta_est = coef(best_model, what='delta', simplify=T)
 delta_est_mat = expand_interactions(Q)
 #delta_est_mat[,c(3,4)] = delta_est_mat[,c(4,3)]
@@ -121,14 +122,11 @@ for (item in 1:length(delta_est)){
   obs_atts = delta_est_mat[item,]>0 # which attributes are observed
   delta_est_mat[item, which(obs_atts)] = delta_est[[item]][2:(sum(obs_atts)+1)] # fill delta mat with observed slopes
 }
-intercepts_est = as.vector(sapply(delta_est, function(x) x["d0"]))
 
+itempars_est = delta_est_mat
 
-itempars_est = cbind(intercepts_est, delta_est_mat)
-
-mse_delta = mean((true_itempars[true_itempars!=0] - itempars_est[true_itempars!=0])^2)
+mse_delta = mean((true_itempars[true_itempars!=0] - itempars_est[itempars_est!=0])^2)
 att_est = personparm(best_model)
-
 
 acc = mean(att_est==true_att)
 mse_itempars = mean((true_itempars[true_itempars!=0] - itempars_est[true_itempars!=0])^2)
