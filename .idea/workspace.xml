@@ -5,17 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1afaf8ee-2420-408e-b48a-692cb232e8d7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/mixIRT_3D_1START.out" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mixIRT_3D_5START.out" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mixirtpars.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Mplus/mix_sim.dat" beforeDir="false" afterPath="$PROJECT_DIR$/Mplus/mix_sim.dat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Rscripts/MIXIRT1-25.R" beforeDir="false" afterPath="$PROJECT_DIR$/Rscripts/MIXIRT1-25.R" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/configs/simfitconfig.yml" beforeDir="false" afterPath="$PROJECT_DIR$/configs/simfitconfig.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MIXIRT.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/MIXIRT.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/data.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/simfit.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/simfit.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/torchsim.sh" beforeDir="false" afterPath="$PROJECT_DIR$/torchsim.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gdinapars.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rscripts/GDINA.R" beforeDir="false" afterPath="$PROJECT_DIR$/Rscripts/GDINA.R" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,24 +37,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/karel/Documents/GitHub/Discrete_VAEs/saved_data",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/karel/Documents/GitHub/Discrete_VAEs/saved_data&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/saved_data" />

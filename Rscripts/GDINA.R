@@ -129,11 +129,11 @@ mse_delta = mean((true_itempars[true_itempars!=0] - itempars_est[itempars_est!=0
 att_est = personparm(best_model)
 
 acc = mean(att_est==true_att)
-mse_itempars = mean((true_itempars[true_itempars!=0] - itempars_est[true_itempars!=0])^2)
+mse_itempars = mse_delta
 mse_theta = NA
-var_itempars = var(itempars_est[true_itempars!=0])
+var_itempars = var(itempars_est[itempars_est!=0])
 var_theta = NA
-bias_itempars = mean(itempars_est[true_itempars!=0] - true_itempars[true_itempars!=0])
+bias_itempars = mean(itempars_est[itempars_est!=0] - true_itempars[true_itempars!=0])
 bias_theta = NA 
 
 
