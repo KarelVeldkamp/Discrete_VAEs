@@ -70,7 +70,6 @@ true_att = np$load(path.expand(paste0(c('../saved_data/GDINA/class/', NATTRIBUTE
 true_itempars = np$load(path.expand(paste0(c('../saved_data/GDINA/itempars/', NATTRIBUTES, '_', NITEMS,'.npy'), collapse = '')))
 true_itempars= matrix(true_itempars, nrow=nrow(true_itempars))
 true_delta = true_itempars[,-1]
-true_intercepts = true_itempars[,1]
 
 # compute the Q matrix of nitems x n interactions and use it to compute the q matrix of nitems x n attributes
 Q = true_delta != 0
@@ -123,17 +122,16 @@ for (item in 1:length(delta_est)){
   delta_est_mat[item, which(obs_atts)] = delta_est[[item]][2:(sum(obs_atts)+1)] # fill delta mat with observed slopes
 }
 
-itempars_est = delta_est_mat
 
-mse_delta = mean((true_itempars[true_itempars!=0] - itempars_est[itempars_est!=0])^2)
+mse_delta = mean((true_delta[true_delta!=0] - delta_est_mat[true_delta!=0])^2)
 att_est = personparm(best_model)
 
 acc = mean(att_est==true_att)
 mse_itempars = mse_delta
 mse_theta = NA
-var_itempars = var(itempars_est[itempars_est!=0])
+var_itempars = var(delta_est_mat[true_delta!=0])
 var_theta = NA
-bias_itempars = mean(itempars_est[itempars_est!=0] - true_itempars[true_itempars!=0])
+bias_itempars = mean(delta_est_mat[true_delta!=0] - true_delta[true_delta!=0])
 bias_theta = NA 
 
 
@@ -144,7 +142,7 @@ par_i = c()
 par_j = c()
 
 class_prob = personparm(best_model, what='mp')
-itempars_est = array(t(itempars_est), dim = c(NITEMS,1,ncol(true_itempars)))
+itempars_est = array(t(delta_est_mat), dim = c(NITEMS,1,ncol(true_delta)))
 estimates = list(class_prob, itempars_est)
 par_names = c('class', 'itempars')
 for (i in 1:2){
